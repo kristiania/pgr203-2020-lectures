@@ -15,13 +15,15 @@ class HttpServerTest {
 
     private Random random = new Random();
 
+    @Test
     void shouldServeFiles() throws IOException {
         HttpServer server = new HttpServer(0);
+        server.start();
         Path testDirectory = Paths.get("target/test/test-" + System.currentTimeMillis());
         Files.createDirectories(testDirectory);
-        server.setRootResource(testDirectory.toFile());
+        server.setRootResource(testDirectory);
 
-        String content = "Today's lucky numbers: " + random.nextInt() + " " + random.nextInt();
+        String content = "Today's lucky numbers: " + random.nextInt(100) + " " + random.nextInt(100);
         Files.writeString(testDirectory.resolve("dummy.txt"), content);
 
         HttpRequest request = new HttpRequest("localhost", server.getPort(), "/dummy.txt");
