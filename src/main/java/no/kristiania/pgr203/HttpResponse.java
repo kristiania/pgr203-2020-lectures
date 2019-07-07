@@ -32,15 +32,16 @@ public class HttpResponse {
     }
 
     public String getContentType() {
-        String header = getHeader("Content-Type");
+        String header = getHeader("Content-type");
         int semiColonPos = header.indexOf(';');
         return header.substring(0, semiColonPos);
     }
 
     private String getHeader(String fieldName) {
         for (String headerLine : headerLines) {
-            if (headerLine.startsWith(fieldName+ ":")) {
-                int colonPos = headerLine.indexOf(':');
+            int colonPos = headerLine.indexOf(':');
+            String lineFieldName = headerLine.substring(0, colonPos).trim();
+            if (lineFieldName.equalsIgnoreCase(fieldName)) {
                 return headerLine.substring(colonPos+1).trim();
             }
         }
