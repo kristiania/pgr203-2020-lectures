@@ -23,4 +23,17 @@ class HttpServerTest {
         HttpResponse response = request.execute();
         assertThat(response.getStatusCode()).isEqualTo(statusCode);
     }
+
+    @Test
+    void shouldGetContentType() throws IOException {
+        HttpClient req = new HttpClient("/echo");
+        assertThat(req. execute().getContentType()).isEqualTo("text/html");
+    }
+
+    @Test
+    void shouldGetCorrectContentType() throws IOException {
+        HttpClient req = new HttpClient("/echo?Content-Type=text%2Fplain");
+        assertThat(req. execute().getContentType()).isEqualTo("text/plain");
+    }
+
 }
