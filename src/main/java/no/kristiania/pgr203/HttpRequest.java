@@ -4,16 +4,16 @@ import java.io.IOException;
 import java.net.Socket;
 
 @SuppressWarnings("WeakerAccess")
-public class HttpClient {
+public class HttpRequest {
 
     private String requestTarget;
 
-    public HttpClient(String requestTarget) {
+    public HttpRequest(String requestTarget) {
         this.requestTarget = requestTarget;
     }
 
     public static void main(String[] args) throws IOException {
-        HttpResponse response = new HttpClient("/echo?status=200&Content-Type=text%2Fhtml&body=Hello%tgere!")
+        HttpResponse response = new HttpRequest("/echo?status=200&Content-Type=text%2Fhtml&body=Hello%tgere!")
                 .execute();
         System.out.println(response.getStatusCode());
     }
