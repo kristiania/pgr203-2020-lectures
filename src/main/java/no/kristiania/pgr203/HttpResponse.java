@@ -37,6 +37,10 @@ public class HttpResponse {
         return header.substring(0, semiColonPos);
     }
 
+    public int getContentLength() {
+        return Integer.parseInt(getHeader("Content-length"));
+    }
+
     private String getHeader(String fieldName) {
         for (String headerLine : headerLines) {
             int colonPos = headerLine.indexOf(':');
@@ -47,4 +51,9 @@ public class HttpResponse {
         }
         return null;
     }
+
+    public String getBody() {
+        return "None";
+    }
+
 }
