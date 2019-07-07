@@ -38,7 +38,7 @@ class HttpServerTest {
 
     @Test
     void shouldGetContentLength() throws IOException {
-        String requestText = "This is a test", otherText = "Hello";
+        String requestText = "This+is+a+test", otherText = "Hello";
         assertThat(new HttpClient("/echo?body=" + requestText).execute().getContentLength())
                 .isEqualTo(requestText.length());
         assertThat(new HttpClient("/echo?body=" + otherText).execute().getContentLength())
