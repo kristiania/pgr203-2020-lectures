@@ -1,5 +1,7 @@
 package no.kristiania.pgr203;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,16 +10,42 @@ public class HttpResponse {
     private final String statusLine;
     private final List<String> headerLines = new ArrayList<>();
     private String serverResponse;
+    private String body;
 
-    public HttpResponse(CharSequence serverResponse) {
-        this.serverResponse = serverResponse.toString();
-        String[] responseLines = this.serverResponse.split("\r\n");
+    public HttpResponse(InputStream inputStream) throws IOException {
+        statusLine = readLine(inputStream);
 
-        int i=0;
-        this.statusLine = responseLines[i++];
-        while (i < responseLines.length && !responseLines[i].trim().isEmpty()) {
-            this.headerLines.add(responseLines[i++]);
+        String headerLine;
+        while (!(headerLine = readLine(inputStream)).trim().isEmpty()) {
+            this.headerLines.add(headerLine);
         }
+
+        body = readBytes(inputStream, getContentLength());
+    }
+
+    private String readBytes(InputStream inputStream, int contentLength) throws IOException {
+        StringBuilder result = new StringBuilder();
+        int c;
+        while ((c = inputStream.read()) != -1) {
+            result.append((char)c);
+            if  (result.length() == contentLength) {
+                break;
+            }
+        }
+        return result.toString();
+    }
+
+    private String readLine(InputStream inputStream) throws IOException {
+        StringBuilder result = new StringBuilder();
+        int c;
+        while ((c = inputStream.read()) != -1) {
+            if (c == '\r') {
+                inputStream.read(); // \n
+                return result.toString();
+            }
+            result.append((char)c);
+        }
+        return result.toString();
     }
 
     public int getStatusCode() {
@@ -53,7 +81,7 @@ public class HttpResponse {
     }
 
     public String getBody() {
-        return "None";
+        return body;
     }
 
 }

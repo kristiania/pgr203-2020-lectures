@@ -23,12 +23,7 @@ public class HttpClient {
             socket.getOutputStream().write(("GET " + requestTarget + " HTTP/1.1\r\nHost: urlecho.appspot.com\r\nConnection: close\r\n\r\n").getBytes());
             socket.getOutputStream().flush();
 
-            StringBuilder serverResponse = new StringBuilder();
-            int c;
-            while ((c = socket.getInputStream().read()) != -1) {
-                serverResponse.append(((char)c));
-            }
-            return new HttpResponse(serverResponse);
+            return new HttpResponse(socket.getInputStream());
         }
     }
 }

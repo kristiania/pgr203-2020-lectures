@@ -47,8 +47,9 @@ class HttpServerTest {
 
     @Test
     void shouldGetResponseBody() throws IOException {
-        HttpClient req = new HttpClient("/echo");
-        assertThat(req.execute().getBody()).isEqualTo("None");
+        assertThat(new HttpClient("/echo").execute().getBody()).isEqualTo("None");
+        assertThat(new HttpClient("/echo?body=This+is+a+test").execute().getBody())
+                .isEqualTo("This is a test");
     }
 
 }
