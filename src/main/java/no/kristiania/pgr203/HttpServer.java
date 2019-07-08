@@ -40,7 +40,12 @@ public class HttpServer {
         while (true) {
             try {
                 Socket clientSocket = serverSocket.accept();
-                handleRequest(clientSocket);
+                try {
+                    handleRequest(clientSocket);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    clientSocket.getOutputStream().write("HTTP/1.1 500 Server Error\r\n\r\n".getBytes());
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -74,11 +79,20 @@ public class HttpServer {
         } else if (requestTarget.equals("/shoppingCart")) {
             String requestBody = HttpMessage.readBytes(clientSocket.getInputStream(), requestHeaders.getContentLength());
 
-            int equalPos = requestBody.indexOf('=');
-            String parameterName = requestBody.substring(0, equalPos);
-            String parameterValue = requestBody.substring(equalPos+1);
+            Map<String, String> parameters = new HashMap<>();
+            for (String parameter : requestBody.split("&")) {
+                int equalPos = parameter.indexOf('=');
+                String parameterName = parameter.substring(0, equalPos);
+                String parameterValue = parameter.substring(equalPos+1);
+                parameters.put(parameterName, parameterValue);
+            }
 
-            shoppingCart.put(Integer.parseInt(parameterValue), 1);
+            int quantity = parameters.containsKey("quantity") ? Integer.parseInt(parameters.get("quantity")) : 1;
+            int productId = Integer.parseInt(parameters.get("productId"));
+            if (!shoppingCart.containsKey(productId)) {
+                shoppingCart.put(productId, 0);
+            }
+            shoppingCart.put(productId, shoppingCart.get(productId) + quantity);
             responseHeaders.add("Location", "http://" + "localhost" + ":" + getPort() + "/products.html");
             clientSocket.getOutputStream().write("HTTP/1.1 302 Redirect\r\n".getBytes());
             responseHeaders.write(clientSocket.getOutputStream());

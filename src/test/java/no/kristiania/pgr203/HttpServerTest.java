@@ -69,4 +69,17 @@ class HttpServerTest {
 
         assertThat(server.getShoppingCart().get(2)).isEqualTo(1);
     }
+
+    @Test
+    void shouldAddProductMultipleTimesToCart() throws IOException {
+        HttpPostRequest request = new HttpPostRequest("localhost", server.getPort(), "/shoppingCart");
+
+        request.setContent("productId=1&quantity=3");
+        assertThat(request.execute().getStatusCode()).isEqualTo(302);
+
+        request.setContent("productId=1&quantity=2");
+        assertThat(request.execute().getStatusCode()).isEqualTo(302);
+
+        assertThat(server.getShoppingCart().get(1)).isEqualTo(5);
+    }
 }
