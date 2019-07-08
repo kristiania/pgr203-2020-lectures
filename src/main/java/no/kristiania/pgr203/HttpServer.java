@@ -6,6 +6,8 @@ import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
 
 import static no.kristiania.pgr203.HttpMessage.readLine;
 
@@ -52,10 +54,16 @@ public class HttpServer {
         String content;
         Path targetFile = rootResource.resolve(requestTarget.substring(1));
         if (requestTarget.equals("/products")) {
-            content = "<div>" +
-                    "<div>Apples</div><button name='productId' value='1'>Add to shopping cart</button></div>" +
-                    "<div>Bananas</div><button name='productId' value='2'>Add to shopping cart</button></div>" +
-                "</div>";
+            StringBuilder productListing = new StringBuilder("<div>");
+            for (Product product : getProducts()) {
+                productListing.append("<div><div>")
+                        .append(product.getName())
+                        .append("</div><button name='productId' value='")
+                        .append(product.getId())
+                        .append("'>Add to shopping to cart</button></div>");
+            }
+            productListing.append("</div>");
+            content = productListing.toString();
         } else if (Files.isRegularFile(targetFile)) {
             content = Files.readString(targetFile);
         } else {
@@ -72,6 +80,14 @@ public class HttpServer {
         clientSocket.getOutputStream().write("\r\n".getBytes());
         clientSocket.getOutputStream().write(content.getBytes());
         clientSocket.getOutputStream().flush();
+    }
+
+    private List<Product> getProducts() {
+        return Arrays.asList(
+                new Product(1, "Apples"),
+                new Product(2, "Bananas"),
+                new Product(3, "Coconuts")
+        );
     }
 
     public static void main(String[] args) throws IOException {
