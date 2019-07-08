@@ -1,4 +1,9 @@
-package no.kristiania.pgr203;
+package no.kristiania.pgr203.webshop;
+
+import no.kristiania.pgr203.http.server.HttpContentResponse;
+import no.kristiania.pgr203.http.HttpHeaders;
+import no.kristiania.pgr203.http.server.HttpRequestHandler;
+import no.kristiania.pgr203.http.server.HttpServerResponse;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,7 +29,7 @@ public class ShowShoppingCartHandler implements HttpRequestHandler {
         return requestMethod.equals("GET") && absolutePath.equals("/shoppingCart");
     }
 
-    String shoppingCartHtml() {
+    public String shoppingCartHtml() {
         StringBuilder shoppingCartContent = new StringBuilder("<div>");
         for (Map.Entry<Integer, Integer> entry : shoppingCart.entrySet()) {
             String productName = null;

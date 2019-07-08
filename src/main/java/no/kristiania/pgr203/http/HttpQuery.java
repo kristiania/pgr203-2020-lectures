@@ -1,4 +1,4 @@
-package no.kristiania.pgr203;
+package no.kristiania.pgr203.http;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -6,7 +6,7 @@ import java.util.Map;
 public class HttpQuery {
     private Map<String, String> parameters = new HashMap<>();
 
-    public HttpQuery(String query) {
+    private HttpQuery(String query) {
         for (String parameter : query.split("&")) {
             int equalPos = parameter.indexOf('=');
             String parameterName = parameter.substring(0, equalPos);
@@ -15,7 +15,7 @@ public class HttpQuery {
         }
     }
 
-    static HttpQuery parse(String query) {
+    public static HttpQuery parse(String query) {
         if (query == null) {
             return null;
         }

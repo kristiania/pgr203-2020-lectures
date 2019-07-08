@@ -1,4 +1,10 @@
-package no.kristiania.pgr203;
+package no.kristiania.pgr203.webshop;
+
+import no.kristiania.pgr203.http.HttpHeaders;
+import no.kristiania.pgr203.http.HttpQuery;
+import no.kristiania.pgr203.http.server.HttpContentResponse;
+import no.kristiania.pgr203.http.server.HttpRequestHandler;
+import no.kristiania.pgr203.http.server.HttpServerResponse;
 
 import java.io.IOException;
 import java.io.InputStream;

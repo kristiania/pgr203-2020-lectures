@@ -1,4 +1,4 @@
-package no.kristiania.pgr203;
+package no.kristiania.pgr203.http;
 
 import java.io.IOException;
 import java.io.OutputStream;

@@ -1,4 +1,6 @@
-package no.kristiania.pgr203;
+package no.kristiania.pgr203.http.server;
+
+import no.kristiania.pgr203.http.HttpHeaders;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -8,7 +10,7 @@ import java.nio.file.Path;
 public class DirectoryHttpServerResponse implements HttpServerResponse {
     private Path path;
 
-    public DirectoryHttpServerResponse(Path path) {
+    DirectoryHttpServerResponse(Path path) {
         this.path = path;
     }
 

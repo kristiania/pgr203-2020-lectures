@@ -1,4 +1,4 @@
-package no.kristiania.pgr203;
+package no.kristiania.pgr203.http;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -6,7 +6,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-class HttpHeaders {
+public class HttpHeaders {
     private final List<String> headerLines = new ArrayList<>();
 
     private void addLine(String headerLine) {
@@ -24,28 +24,28 @@ class HttpHeaders {
         return null;
     }
 
-    void parse(InputStream inputStream) throws IOException {
+    public void parse(InputStream inputStream) throws IOException {
         String headerLine;
         while (!(headerLine = HttpMessage.readLine(inputStream)).trim().isEmpty()) {
             addLine(headerLine);
         }
     }
 
-    void add(String fieldName, String fieldValue) {
+    public void add(String fieldName, String fieldValue) {
         addLine(fieldName + ": " + fieldValue);
     }
 
-    void setContentLength(long length) {
+    public void setContentLength(long length) {
         add("Content-Length", String.valueOf(length));
     }
 
-    void write(OutputStream outputStream) throws IOException {
+    public void write(OutputStream outputStream) throws IOException {
         for (String headerLine : headerLines) {
             outputStream.write((headerLine + "\r\n").getBytes());
         }
     }
 
-    int getContentLength() {
+    public int getContentLength() {
         return Integer.parseInt(getHeader("Content-Length"));
     }
 }

@@ -1,16 +1,14 @@
-package no.kristiania.pgr203;
+package no.kristiania.pgr203.http.server;
+
+import no.kristiania.pgr203.http.HttpHeaders;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import static no.kristiania.pgr203.HttpMessage.readLine;
+import static no.kristiania.pgr203.http.HttpMessage.readLine;
 
 public class HttpServer {
 
@@ -18,19 +16,19 @@ public class HttpServer {
 
     private List<HttpRequestHandler> handlers = new ArrayList<>();
 
-    HttpServer(int port) throws IOException {
+    public HttpServer(int port) throws IOException {
         serverSocket = new ServerSocket(port);
     }
 
-    void addHandler(HttpRequestHandler handler) {
+    public void addHandler(HttpRequestHandler handler) {
         handlers.add(handler);
     }
 
-    int getPort() {
+    public int getPort() {
         return serverSocket.getLocalPort();
     }
 
-    void start() {
+    public void start() {
         new Thread(this::serverThread).start();
     }
 
@@ -78,28 +76,5 @@ public class HttpServer {
         }
 
         return new HttpNotFoundHandler();
-    }
-
-    static List<Product> getProducts() {
-        return Arrays.asList(
-                new Product(1, "Apples", 1),
-                new Product(2, "Bananas", 1),
-                new Product(3, "Coconuts", 1),
-                new Product(4, "Chocolate", 2),
-                new Product(5, "Ice cream", 2)
-        );
-    }
-
-    public static void main(String[] args) throws IOException {
-        HttpServer server = new HttpServer(10080);
-
-        Map<Integer, Integer> shoppingCart = new HashMap<>();
-
-        server.addHandler(new AddToShoppingCartHandler(shoppingCart));
-        server.addHandler(new ShowShoppingCartHandler(shoppingCart, getProducts()));
-        server.addHandler(new ShowProductsHandler(getProducts()));
-        server.handlers.add(new DirectoryHttpHandler(Path.of("src/main/resources/webapp")));
-
-        server.start();
     }
 }

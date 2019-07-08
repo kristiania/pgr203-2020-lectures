@@ -1,5 +1,15 @@
 package no.kristiania.pgr203;
 
+import no.kristiania.pgr203.http.server.DirectoryHttpHandler;
+import no.kristiania.pgr203.http.HttpPostRequest;
+import no.kristiania.pgr203.http.HttpRequest;
+import no.kristiania.pgr203.http.HttpResponse;
+import no.kristiania.pgr203.http.server.HttpServer;
+import no.kristiania.pgr203.webshop.AddToShoppingCartHandler;
+import no.kristiania.pgr203.webshop.Product;
+import no.kristiania.pgr203.webshop.ShowProductsHandler;
+import no.kristiania.pgr203.webshop.ShowShoppingCartHandler;
+import no.kristiania.pgr203.webshop.WebshopServer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -49,7 +59,7 @@ class HttpServerTest {
 
     @Test
     void shouldReturnProducts() throws IOException {
-        server.addHandler(new ShowProductsHandler(HttpServer.getProducts()));
+        server.addHandler(new ShowProductsHandler(WebshopServer.getProducts()));
         HttpRequest request = new HttpRequest("localhost", server.getPort(), "/products");
         HttpResponse response = request.execute();
         assertThat(response.getStatusCode()).isEqualTo(200);
@@ -61,7 +71,7 @@ class HttpServerTest {
 
     @Test
     void shouldFilterProducts() throws IOException {
-        server.addHandler(new ShowProductsHandler(HttpServer.getProducts()));
+        server.addHandler(new ShowProductsHandler(WebshopServer.getProducts()));
         HttpRequest request = new HttpRequest("localhost", server.getPort(), "/products?productCategory=2");
         HttpResponse response = request.execute();
         assertThat(response.getStatusCode()).isEqualTo(200);
@@ -107,14 +117,14 @@ class HttpServerTest {
     @Test
     void shouldShowShoppingCart() throws IOException {
         HashMap<Integer, Integer> shoppingCart = new HashMap<>();
-        server.addHandler(new ShowShoppingCartHandler(shoppingCart, HttpServer.getProducts()));
+        server.addHandler(new ShowShoppingCartHandler(shoppingCart, WebshopServer.getProducts()));
         shoppingCart.put(1, 10);
         shoppingCart.put(3, 1);
 
         HttpRequest request = new HttpRequest("localhost", server.getPort(), "/shoppingCart");
         String body = request.execute().getBody();
 
-        assertThat(body).isEqualTo(new ShowShoppingCartHandler(shoppingCart, HttpServer.getProducts()).shoppingCartHtml());
+        assertThat(body).isEqualTo(new ShowShoppingCartHandler(shoppingCart, WebshopServer.getProducts()).shoppingCartHtml());
     }
 
     @Test

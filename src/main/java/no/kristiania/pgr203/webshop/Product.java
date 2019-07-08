@@ -1,17 +1,17 @@
-package no.kristiania.pgr203;
+package no.kristiania.pgr203.webshop;
 
-class Product {
+public class Product {
     private final int id;
     private final String name;
     private int categoryId;
 
-    Product(int id, String name, int categoryId) {
+    public Product(int id, String name, int categoryId) {
         this.id = id;
         this.name = name;
         this.categoryId = categoryId;
     }
 
-    int getId() {
+    public int getId() {
         return id;
     }
 

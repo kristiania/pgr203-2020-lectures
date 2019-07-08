@@ -1,4 +1,4 @@
-package no.kristiania.pgr203;
+package no.kristiania.pgr203.http;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -6,11 +6,11 @@ import java.io.OutputStream;
 public class HttpPostRequest extends HttpRequest {
     private String content;
 
-    HttpPostRequest(String hostname, int port, String requestTarget) {
+    public HttpPostRequest(String hostname, int port, String requestTarget) {
         super(hostname, port, requestTarget);
     }
 
-    void setContent(String content) {
+    public void setContent(String content) {
         this.content = content;
         headers.setContentLength(content.length());
     }

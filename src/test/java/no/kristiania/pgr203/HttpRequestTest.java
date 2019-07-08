@@ -1,5 +1,7 @@
 package no.kristiania.pgr203;
 
+import no.kristiania.pgr203.http.HttpRequest;
+import no.kristiania.pgr203.http.HttpResponse;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;

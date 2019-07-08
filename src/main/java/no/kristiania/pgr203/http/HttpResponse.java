@@ -1,4 +1,4 @@
-package no.kristiania.pgr203;
+package no.kristiania.pgr203.http;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,7 +34,7 @@ public class HttpResponse {
         return headers.getContentLength();
     }
 
-    String getHeader(String fieldName) {
+    public String getHeader(String fieldName) {
         return headers.getHeader(fieldName);
     }
 

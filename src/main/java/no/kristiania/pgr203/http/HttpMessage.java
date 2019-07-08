@@ -1,10 +1,10 @@
-package no.kristiania.pgr203;
+package no.kristiania.pgr203.http;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-class HttpMessage {
-    static String readLine(InputStream inputStream) throws IOException {
+public class HttpMessage {
+    public static String readLine(InputStream inputStream) throws IOException {
         StringBuilder result = new StringBuilder();
         int c;
         while ((c = inputStream.read()) != -1) {

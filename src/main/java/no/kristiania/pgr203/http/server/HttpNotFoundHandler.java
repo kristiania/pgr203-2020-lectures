@@ -1,11 +1,12 @@
-package no.kristiania.pgr203;
+package no.kristiania.pgr203.http.server;
 
-import java.io.IOException;
+import no.kristiania.pgr203.http.HttpHeaders;
+
 import java.io.InputStream;
 
 public class HttpNotFoundHandler implements HttpRequestHandler {
     @Override
-    public HttpServerResponse execute(String requestMethod, String absolutePath, String query, HttpHeaders requestHeaders, InputStream inputStream) throws IOException {
+    public HttpServerResponse execute(String requestMethod, String absolutePath, String query, HttpHeaders requestHeaders, InputStream inputStream) {
         return new HttpNotFoundResponse();
     }
 

@@ -1,4 +1,6 @@
-package no.kristiania.pgr203;
+package no.kristiania.pgr203.http.server;
+
+import no.kristiania.pgr203.http.HttpHeaders;
 
 import java.io.InputStream;
 import java.nio.file.Files;
