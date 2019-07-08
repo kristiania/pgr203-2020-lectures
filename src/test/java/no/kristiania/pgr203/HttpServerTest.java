@@ -21,7 +21,6 @@ class HttpServerTest {
     void setUp() throws IOException {
         server = new HttpServer(0);
         server.start();
-
     }
 
     @Test
@@ -56,6 +55,18 @@ class HttpServerTest {
                 .contains(">Apples<")
                 .contains(">Bananas<")
         ;
+    }
 
+    @Test
+    void shouldAddToShoppingCart() throws IOException {
+        HttpPostRequest request = new HttpPostRequest("localhost", server.getPort(), "/shoppingCart");
+        request.setContent("productId=2");
+
+        HttpResponse response = request.execute();
+        assertThat(response.getStatusCode()).isEqualTo(302);
+        assertThat(response.getHeader("Location"))
+                .isEqualTo("http://localhost:" + server.getPort() + "/products.html");
+
+        assertThat(server.getShoppingCart().get(2)).isEqualTo(1);
     }
 }

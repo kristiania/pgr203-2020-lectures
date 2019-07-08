@@ -12,7 +12,9 @@ public class HttpResponse {
     public HttpResponse(InputStream inputStream) throws IOException {
         statusLine = HttpMessage.readLine(inputStream);
         headers.parse(inputStream);
-        body = readBytes(inputStream, getContentLength());
+        if (getHeader("Content-Length") != null) {
+            body = readBytes(inputStream, getContentLength());
+        }
     }
 
     private String readBytes(InputStream inputStream, int contentLength) throws IOException {
@@ -44,7 +46,7 @@ public class HttpResponse {
         return headers.getContentLength();
     }
 
-    private String getHeader(String fieldName) {
+    String getHeader(String fieldName) {
         return headers.getHeader(fieldName);
     }
 

@@ -1,5 +1,6 @@
 package no.kristiania.pgr203;
 
+import javax.swing.*;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -7,7 +8,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static no.kristiania.pgr203.HttpMessage.readLine;
 
@@ -15,6 +18,7 @@ public class HttpServer {
 
     private ServerSocket serverSocket;
     private Path rootResource = Paths.get(".");
+    private Map<Integer, Integer> shoppingCart = new HashMap<>();
 
     HttpServer(int port) throws IOException {
         serverSocket = new ServerSocket(port);
@@ -51,6 +55,7 @@ public class HttpServer {
 
         String requestTarget = requestLine.substring(firstSpace+1, secondSpace);
 
+        HttpHeaders responseHeaders = new HttpHeaders();
         String content;
         Path targetFile = rootResource.resolve(requestTarget.substring(1));
         if (requestTarget.equals("/products")) {
@@ -64,6 +69,14 @@ public class HttpServer {
             }
             productListing.append("</div>");
             content = productListing.toString();
+        } else if (requestTarget.equals("/shoppingCart")) {
+            shoppingCart.put(2, 1);
+            responseHeaders.add("Location", "http://" + "localhost" + ":" + getPort() + "/products.html");
+            clientSocket.getOutputStream().write("HTTP/1.1 302 Redirect\r\n".getBytes());
+            responseHeaders.write(clientSocket.getOutputStream());
+            clientSocket.getOutputStream().write("\r\n".getBytes());
+            clientSocket.getOutputStream().flush();
+            return;
         } else if (Files.isRegularFile(targetFile)) {
             content = Files.readString(targetFile);
         } else {
@@ -72,7 +85,6 @@ public class HttpServer {
 
         clientSocket.getOutputStream().write("HTTP/1.1 200 OK\r\n".getBytes());
 
-        HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.setContentLength(content.length());
         responseHeaders.add("Connection", "close");
         responseHeaders.write(clientSocket.getOutputStream());
@@ -94,5 +106,9 @@ public class HttpServer {
         HttpServer server = new HttpServer(10080);
         server.setRootResource(Path.of("src/main/resources/webapp"));
         server.start();
+    }
+
+    public Map<Integer, Integer> getShoppingCart() {
+        return shoppingCart;
     }
 }
