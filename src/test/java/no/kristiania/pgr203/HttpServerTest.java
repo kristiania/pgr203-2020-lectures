@@ -1,5 +1,6 @@
 package no.kristiania.pgr203;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -14,11 +15,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 class HttpServerTest {
 
     private Random random = new Random();
+    private HttpServer server;
+
+    @BeforeEach
+    void setUp() throws IOException {
+        server = new HttpServer(0);
+        server.start();
+
+    }
 
     @Test
     void shouldServeFiles() throws IOException {
-        HttpServer server = new HttpServer(0);
-        server.start();
         Path testDirectory = Paths.get("target/test/test-" + System.currentTimeMillis());
         Files.createDirectories(testDirectory);
         server.setRootResource(testDirectory);
@@ -34,11 +41,21 @@ class HttpServerTest {
 
     @Test
     void shouldRespondToHttpRequest() throws IOException, InterruptedException {
-        HttpServer server = new HttpServer(0);
-        server.start();
         HttpRequest request = new HttpRequest("localhost", server.getPort(), "/hello");
         HttpResponse response = request.execute();
         assertThat(response.getStatusCode()).isEqualTo(200);
         assertThat(response.getBody()).isEqualTo("Hello world");
+    }
+
+    @Test
+    void shouldReturnProducts() throws IOException {
+        HttpRequest request = new HttpRequest("localhost", server.getPort(), "/products");
+        HttpResponse response = request.execute();
+        assertThat(response.getStatusCode()).isEqualTo(200);
+        assertThat(response.getBody())
+                .contains(">Apples<")
+                .contains(">Bananas<")
+        ;
+
     }
 }

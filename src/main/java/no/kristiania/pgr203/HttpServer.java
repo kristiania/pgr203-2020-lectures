@@ -51,7 +51,12 @@ public class HttpServer {
 
         String content;
         Path targetFile = rootResource.resolve(requestTarget.substring(1));
-        if (Files.isRegularFile(targetFile)) {
+        if (requestTarget.equals("/products")) {
+            content = "<div>" +
+                    "<div>Apples</div><button name='productId' value='1'>Add to shopping cart</button></div>" +
+                    "<div>Bananas</div><button name='productId' value='2'>Add to shopping cart</button></div>" +
+                "</div>";
+        } else if (Files.isRegularFile(targetFile)) {
             content = Files.readString(targetFile);
         } else {
             content = "Hello world";
