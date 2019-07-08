@@ -3,11 +3,13 @@ package no.kristiania.pgr203;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -80,5 +82,30 @@ class HttpServerTest {
         assertThat(request.execute().getStatusCode()).isEqualTo(302);
 
         assertThat(server.getShoppingCart().get(1)).isEqualTo(5);
+    }
+
+    @Test
+    void shouldShowShoppingCart() throws IOException {
+        server.getShoppingCart().put(1, 10);
+        server.getShoppingCart().put(3, 1);
+
+        HttpRequest request = new HttpRequest("localhost", server.getPort(), "/shoppingCart");
+        String body = request.execute().getBody();
+
+        assertThat(body).isEqualTo(server.shoppingCartHtml(server.getShoppingCart(), server.getProducts()));
+    }
+
+    @Test
+    void shouldFormatShoppingCart() {
+        Product apples = new Product(10, "Apples");
+        Product coconuts = new Product(100, "Coconuts");
+
+        Map<Integer, Integer> shoppingCart = new HashMap<>();
+        shoppingCart.put(apples.getId(), 10);
+        shoppingCart.put(coconuts.getId(), 3);
+
+        assertThat(server.shoppingCartHtml(shoppingCart, Arrays.asList(apples, coconuts)))
+                .contains(">10 x Apples<")
+                .contains(">3 x Coconuts<");
     }
 }

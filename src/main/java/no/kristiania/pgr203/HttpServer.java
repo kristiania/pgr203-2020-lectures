@@ -1,6 +1,5 @@
 package no.kristiania.pgr203;
 
-import javax.swing.*;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -60,6 +59,7 @@ public class HttpServer {
         int firstSpace = requestLine.indexOf(' ');
         int secondSpace = requestLine.indexOf(' ', firstSpace+1);
 
+        String requestMethod = requestLine.substring(0, firstSpace);
         String requestTarget = requestLine.substring(firstSpace+1, secondSpace);
 
         HttpHeaders responseHeaders = new HttpHeaders();
@@ -76,7 +76,9 @@ public class HttpServer {
             }
             productListing.append("</div>");
             content = productListing.toString();
-        } else if (requestTarget.equals("/shoppingCart")) {
+        } else if (requestMethod.equals("GET") && requestTarget.equals("/shoppingCart")) {
+            content = shoppingCartHtml(getShoppingCart(), getProducts());
+        } else if (requestMethod.equals("POST") && requestTarget.equals("/shoppingCart")) {
             String requestBody = HttpMessage.readBytes(clientSocket.getInputStream(), requestHeaders.getContentLength());
 
             Map<String, String> parameters = new HashMap<>();
@@ -124,7 +126,26 @@ public class HttpServer {
         clientSocket.getOutputStream().flush();
     }
 
-    private List<Product> getProducts() {
+    String shoppingCartHtml(Map<Integer, Integer> shoppingCart, List<Product> products) {
+        StringBuilder shoppingCartContent = new StringBuilder("<div>");
+        for (Map.Entry<Integer, Integer> entry : shoppingCart.entrySet()) {
+            String productName = null;
+            for (Product product : products) {
+                if (product.getId() == entry.getKey()) {
+                    productName = product.getName();
+                }
+            }
+            shoppingCartContent.append("<div>")
+                    .append(entry.getValue())
+                    .append(" x ")
+                    .append(productName)
+                    .append("</div>");
+        }
+        shoppingCartContent.append("</div>");
+        return shoppingCartContent.toString();
+    }
+
+    List<Product> getProducts() {
         return Arrays.asList(
                 new Product(1, "Apples"),
                 new Product(2, "Bananas"),
@@ -138,7 +159,7 @@ public class HttpServer {
         server.start();
     }
 
-    public Map<Integer, Integer> getShoppingCart() {
+    Map<Integer, Integer> getShoppingCart() {
         return shoppingCart;
     }
 }

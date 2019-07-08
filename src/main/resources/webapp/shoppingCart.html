@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Shopping cart | KristianiaShop</title>
+</head>
+<body>
+    <h1>Shopping cart</h1>
+
+    <div id="shoppingCartContent"></div>
+</body>
+<script>
+    async function fetchShoppingCart() {
+        const shoppingCartResponse = await fetch("/shoppingCart");
+        if (shoppingCartResponse.ok) {
+            const shoppingCartContent = await shoppingCartResponse.text();
+            document.getElementById("shoppingCartContent").innerHTML = shoppingCartContent;
+        } else {
+            console.error("fetch failed " , shoppingCartResponse);
+        }
+    }
+
+    fetchShoppingCart();
+</script>
+</html>
