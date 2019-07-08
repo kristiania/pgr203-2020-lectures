@@ -35,7 +35,7 @@ class HttpHeaders {
         addLine(fieldName + ": " + fieldValue);
     }
 
-    void setContentLength(int length) {
+    void setContentLength(long length) {
         add("Content-Length", String.valueOf(length));
     }
 

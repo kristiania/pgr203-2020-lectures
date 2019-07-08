@@ -3,9 +3,8 @@ package no.kristiania.pgr203;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -16,15 +15,15 @@ import static no.kristiania.pgr203.HttpMessage.readLine;
 public class HttpServer {
 
     private ServerSocket serverSocket;
-    private Path rootResource = Paths.get(".");
-    private Map<Integer, Integer> shoppingCart = new HashMap<>();
+
+    private List<HttpRequestHandler> handlers = new ArrayList<>();
 
     HttpServer(int port) throws IOException {
         serverSocket = new ServerSocket(port);
     }
 
-    void setRootResource(Path directory) {
-        rootResource = directory;
+    void addHandler(HttpRequestHandler handler) {
+        handlers.add(handler);
     }
 
     int getPort() {
@@ -65,111 +64,23 @@ public class HttpServer {
         String absolutePath = questionPos >= 0 ? requestTarget.substring(0, questionPos) : requestTarget;
         String query = questionPos >= 0 ? requestTarget.substring(questionPos+1) : null;
 
-        HttpHeaders responseHeaders = new HttpHeaders();
-        String content;
-        Path targetFile = rootResource.resolve(absolutePath.substring(1));
-        if (absolutePath.equals("/products")) {
-            content = productsHtml(getProducts(), parseParameters(query));
-        } else if (requestMethod.equals("GET") && absolutePath.equals("/shoppingCart")) {
-            content = shoppingCartHtml(getShoppingCart(), getProducts());
-        } else if (requestMethod.equals("POST") && absolutePath.equals("/shoppingCart")) {
-            String requestBody = HttpMessage.readBytes(clientSocket.getInputStream(), requestHeaders.getContentLength());
+        HttpRequestHandler handler = findRequestHandler(requestMethod, absolutePath);
+        handler
+                .execute(requestMethod, absolutePath, query, requestHeaders, clientSocket.getInputStream())
+                .write(clientSocket.getOutputStream(), "localhost" + ":" + getPort());
+    }
 
-            Map<String, String> parameters = parseParameters(requestBody);
-
-            int quantity = parameters.containsKey("quantity") ? Integer.parseInt(parameters.get("quantity")) : 1;
-            int productId = Integer.parseInt(parameters.get("productId"));
-            if (!shoppingCart.containsKey(productId)) {
-                shoppingCart.put(productId, 0);
+    private HttpRequestHandler findRequestHandler(String requestMethod, String absolutePath) {
+        for (HttpRequestHandler handler : handlers) {
+            if (handler.canHandle(requestMethod, absolutePath)) {
+                return handler;
             }
-            shoppingCart.put(productId, shoppingCart.get(productId) + quantity);
-            responseHeaders.add("Location", "http://" + "localhost" + ":" + getPort() + "/products.html");
-            clientSocket.getOutputStream().write("HTTP/1.1 302 Redirect\r\n".getBytes());
-            responseHeaders.write(clientSocket.getOutputStream());
-            clientSocket.getOutputStream().write("\r\n".getBytes());
-            clientSocket.getOutputStream().flush();
-            return;
-        } else if (Files.isRegularFile(targetFile)) {
-            content = Files.readString(targetFile);
-        } else {
-            clientSocket.getOutputStream().write("HTTP/1.1 404 Not found\r\n".getBytes());
-
-            responseHeaders.setContentLength(0);
-            responseHeaders.add("Connection", "close");
-            responseHeaders.write(clientSocket.getOutputStream());
-
-            clientSocket.getOutputStream().write("\r\n".getBytes());
-            clientSocket.getOutputStream().flush();
-            return;
         }
 
-        clientSocket.getOutputStream().write("HTTP/1.1 200 OK\r\n".getBytes());
-
-        responseHeaders.setContentLength(content.length());
-        responseHeaders.add("Connection", "close");
-        responseHeaders.write(clientSocket.getOutputStream());
-
-        clientSocket.getOutputStream().write("\r\n".getBytes());
-        clientSocket.getOutputStream().write(content.getBytes());
-        clientSocket.getOutputStream().flush();
+        return new HttpNotFoundHandler();
     }
 
-    private Map<String, String> parseParameters(String requestBody) {
-        if (requestBody == null) {
-            return null;
-        }
-        Map<String, String> parameters = new HashMap<>();
-        for (String parameter : requestBody.split("&")) {
-            int equalPos = parameter.indexOf('=');
-            String parameterName = parameter.substring(0, equalPos);
-            String parameterValue = parameter.substring(equalPos+1);
-            parameters.put(parameterName, parameterValue);
-        }
-        return parameters;
-    }
-
-    private String productsHtml(List<Product> products, Map<String, String> query) {
-        Integer categoryId = null;
-        if (query != null && query.containsKey("productCategory") && !query.get("productCategory").isEmpty()) {
-            categoryId = Integer.parseInt(query.get("productCategory"));
-        }
-        StringBuilder productListing = new StringBuilder("<div>");
-        for (Product product : products) {
-            if (categoryId != null && product.getCategoryId() != categoryId) {
-                continue;
-            }
-            productListing.append("<div><label>")
-                    .append("<input type='radio' name='productId' value='")
-                    .append(product.getId())
-                    .append("'>")
-                    .append(product.getName())
-                    .append("</label></div>")
-                    ;
-        }
-        productListing.append("</div>");
-        return productListing.toString();
-    }
-
-    String shoppingCartHtml(Map<Integer, Integer> shoppingCart, List<Product> products) {
-        StringBuilder shoppingCartContent = new StringBuilder("<div>");
-        for (Map.Entry<Integer, Integer> entry : shoppingCart.entrySet()) {
-            String productName = null;
-            for (Product product : products) {
-                if (product.getId() == entry.getKey()) {
-                    productName = product.getName();
-                }
-            }
-            shoppingCartContent.append("<div>")
-                    .append(entry.getValue())
-                    .append(" x ")
-                    .append(productName)
-                    .append("</div>");
-        }
-        shoppingCartContent.append("</div>");
-        return shoppingCartContent.toString();
-    }
-
-    List<Product> getProducts() {
+    static List<Product> getProducts() {
         return Arrays.asList(
                 new Product(1, "Apples", 1),
                 new Product(2, "Bananas", 1),
@@ -181,11 +92,14 @@ public class HttpServer {
 
     public static void main(String[] args) throws IOException {
         HttpServer server = new HttpServer(10080);
-        server.setRootResource(Path.of("src/main/resources/webapp"));
-        server.start();
-    }
 
-    Map<Integer, Integer> getShoppingCart() {
-        return shoppingCart;
+        Map<Integer, Integer> shoppingCart = new HashMap<>();
+
+        server.addHandler(new AddToShoppingCartHandler(shoppingCart));
+        server.addHandler(new ShowShoppingCartHandler(shoppingCart, getProducts()));
+        server.addHandler(new ShowProductsHandler(getProducts()));
+        server.handlers.add(new DirectoryHttpHandler(Path.of("src/main/resources/webapp")));
+
+        server.start();
     }
 }

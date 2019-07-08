@@ -29,7 +29,7 @@ class HttpServerTest {
     void shouldServeFiles() throws IOException {
         Path testDirectory = Paths.get("target/test/test-" + System.currentTimeMillis());
         Files.createDirectories(testDirectory);
-        server.setRootResource(testDirectory);
+        server.addHandler(new DirectoryHttpHandler(testDirectory));
 
         String content = "Today's lucky numbers: " + random.nextInt(100) + " " + random.nextInt(100);
         Files.writeString(testDirectory.resolve("dummy.txt"), content);
@@ -49,6 +49,7 @@ class HttpServerTest {
 
     @Test
     void shouldReturnProducts() throws IOException {
+        server.addHandler(new ShowProductsHandler(HttpServer.getProducts()));
         HttpRequest request = new HttpRequest("localhost", server.getPort(), "/products");
         HttpResponse response = request.execute();
         assertThat(response.getStatusCode()).isEqualTo(200);
@@ -60,6 +61,7 @@ class HttpServerTest {
 
     @Test
     void shouldFilterProducts() throws IOException {
+        server.addHandler(new ShowProductsHandler(HttpServer.getProducts()));
         HttpRequest request = new HttpRequest("localhost", server.getPort(), "/products?productCategory=2");
         HttpResponse response = request.execute();
         assertThat(response.getStatusCode()).isEqualTo(200);
@@ -72,6 +74,9 @@ class HttpServerTest {
 
     @Test
     void shouldAddToShoppingCart() throws IOException {
+        HashMap<Integer, Integer> shoppingCart = new HashMap<>();
+        server.addHandler(new AddToShoppingCartHandler(shoppingCart));
+
         HttpPostRequest request = new HttpPostRequest("localhost", server.getPort(), "/shoppingCart");
         request.setContent("productId=2");
 
@@ -80,11 +85,14 @@ class HttpServerTest {
         assertThat(response.getHeader("Location"))
                 .isEqualTo("http://localhost:" + server.getPort() + "/products.html");
 
-        assertThat(server.getShoppingCart().get(2)).isEqualTo(1);
+        assertThat(shoppingCart.get(2)).isEqualTo(1);
     }
 
     @Test
     void shouldAddProductMultipleTimesToCart() throws IOException {
+        HashMap<Integer, Integer> shoppingCart = new HashMap<>();
+        server.addHandler(new AddToShoppingCartHandler(shoppingCart));
+
         HttpPostRequest request = new HttpPostRequest("localhost", server.getPort(), "/shoppingCart");
 
         request.setContent("productId=1&quantity=3");
@@ -93,18 +101,20 @@ class HttpServerTest {
         request.setContent("productId=1&quantity=2");
         assertThat(request.execute().getStatusCode()).isEqualTo(302);
 
-        assertThat(server.getShoppingCart().get(1)).isEqualTo(5);
+        assertThat(shoppingCart.get(1)).isEqualTo(5);
     }
 
     @Test
     void shouldShowShoppingCart() throws IOException {
-        server.getShoppingCart().put(1, 10);
-        server.getShoppingCart().put(3, 1);
+        HashMap<Integer, Integer> shoppingCart = new HashMap<>();
+        server.addHandler(new ShowShoppingCartHandler(shoppingCart, HttpServer.getProducts()));
+        shoppingCart.put(1, 10);
+        shoppingCart.put(3, 1);
 
         HttpRequest request = new HttpRequest("localhost", server.getPort(), "/shoppingCart");
         String body = request.execute().getBody();
 
-        assertThat(body).isEqualTo(server.shoppingCartHtml(server.getShoppingCart(), server.getProducts()));
+        assertThat(body).isEqualTo(new ShowShoppingCartHandler(shoppingCart, HttpServer.getProducts()).shoppingCartHtml());
     }
 
     @Test
@@ -116,7 +126,7 @@ class HttpServerTest {
         shoppingCart.put(apples.getId(), 10);
         shoppingCart.put(coconuts.getId(), 3);
 
-        assertThat(server.shoppingCartHtml(shoppingCart, Arrays.asList(apples, coconuts)))
+        assertThat(new ShowShoppingCartHandler(shoppingCart, Arrays.asList(apples, coconuts)).shoppingCartHtml())
                 .contains(">10 x Apples<")
                 .contains(">3 x Coconuts<");
     }
