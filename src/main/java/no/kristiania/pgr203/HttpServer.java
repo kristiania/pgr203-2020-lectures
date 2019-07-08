@@ -1,32 +1,32 @@
 package no.kristiania.pgr203;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static no.kristiania.pgr203.HttpMessage.readLine;
+
 public class HttpServer {
 
     private ServerSocket serverSocket;
     private Path rootResource = Paths.get(".");
 
-    public HttpServer(int port) throws IOException {
+    HttpServer(int port) throws IOException {
         serverSocket = new ServerSocket(port);
     }
 
-    public void setRootResource(Path directory) {
+    void setRootResource(Path directory) {
         rootResource = directory;
     }
 
-    public int getPort() {
+    int getPort() {
         return serverSocket.getLocalPort();
     }
 
-    public void start() {
+    void start() {
         new Thread(this::serverThread).start();
     }
 
@@ -56,27 +56,21 @@ public class HttpServer {
         } else {
             content = "Hello world";
         }
-        String responseBody = "HTTP/1.1 200 OK\r\nConnection: close\r\nContent-length: " + content.length() + "\r\n\r\n" + content;
-        clientSocket.getOutputStream().write(responseBody.getBytes());
+
+        clientSocket.getOutputStream().write("HTTP/1.1 200 OK\r\n".getBytes());
+
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.setContentLength(content.length());
+        responseHeaders.add("Connection", "close");
+        responseHeaders.write(clientSocket.getOutputStream());
+
+        clientSocket.getOutputStream().write("\r\n".getBytes());
+        clientSocket.getOutputStream().write(content.getBytes());
         clientSocket.getOutputStream().flush();
     }
 
     public static void main(String[] args) throws IOException {
         HttpServer server = new HttpServer(10080);
         server.start();
-    }
-
-
-    private String readLine(InputStream inputStream) throws IOException {
-        StringBuilder result = new StringBuilder();
-        int c;
-        while ((c = inputStream.read()) != -1) {
-            if (c == '\r') {
-                inputStream.read(); // \n
-                return result.toString();
-            }
-            result.append((char)c);
-        }
-        return result.toString();
     }
 }

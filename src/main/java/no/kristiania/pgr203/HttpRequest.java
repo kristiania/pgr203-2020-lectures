@@ -23,8 +23,14 @@ public class HttpRequest {
     }
 
     public HttpResponse execute() throws IOException {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Host", hostname);
+        headers.add("Connection", "close");
         try(Socket socket = new Socket(hostname, port)) {
-            socket.getOutputStream().write(("GET " + requestTarget + " HTTP/1.1\r\nHost: " + hostname + "\r\nConnection: close\r\n\r\n").getBytes());
+            socket.getOutputStream().write(("GET " + requestTarget + " HTTP/1.1\r\n").getBytes());
+            headers.write(socket.getOutputStream());
+            socket.getOutputStream().write("\r\n".getBytes());
+
             socket.getOutputStream().flush();
 
             return new HttpResponse(socket.getInputStream());
