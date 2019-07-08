@@ -6,9 +6,9 @@ import java.net.Socket;
 @SuppressWarnings("WeakerAccess")
 public class HttpRequest {
 
-    private final String hostname;
-    private final int port;
-    private String requestTarget;
+    protected final String hostname;
+    final int port;
+    protected String requestTarget;
 
     public HttpRequest(String hostname, int port, String requestTarget) {
         this.hostname = hostname;

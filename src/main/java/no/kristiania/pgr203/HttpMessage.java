@@ -16,4 +16,16 @@ class HttpMessage {
         }
         return result.toString();
     }
+
+    public static String readBytes(InputStream inputStream, int contentLength) throws IOException {
+        StringBuilder result = new StringBuilder();
+        int c;
+        while ((c = inputStream.read()) != -1) {
+            result.append((char)c);
+            if  (result.length() == contentLength) {
+                break;
+            }
+        }
+        return result.toString();
+    }
 }

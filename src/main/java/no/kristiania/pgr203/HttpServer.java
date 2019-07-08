@@ -49,6 +49,8 @@ public class HttpServer {
 
     private void handleRequest(Socket clientSocket) throws IOException {
         String requestLine = readLine(clientSocket.getInputStream());
+        HttpHeaders requestHeaders = new HttpHeaders();
+        requestHeaders.parse(clientSocket.getInputStream());
 
         int firstSpace = requestLine.indexOf(' ');
         int secondSpace = requestLine.indexOf(' ', firstSpace+1);
@@ -70,7 +72,13 @@ public class HttpServer {
             productListing.append("</div>");
             content = productListing.toString();
         } else if (requestTarget.equals("/shoppingCart")) {
-            shoppingCart.put(2, 1);
+            String requestBody = HttpMessage.readBytes(clientSocket.getInputStream(), requestHeaders.getContentLength());
+
+            int equalPos = requestBody.indexOf('=');
+            String parameterName = requestBody.substring(0, equalPos);
+            String parameterValue = requestBody.substring(equalPos+1);
+
+            shoppingCart.put(Integer.parseInt(parameterValue), 1);
             responseHeaders.add("Location", "http://" + "localhost" + ":" + getPort() + "/products.html");
             clientSocket.getOutputStream().write("HTTP/1.1 302 Redirect\r\n".getBytes());
             responseHeaders.write(clientSocket.getOutputStream());

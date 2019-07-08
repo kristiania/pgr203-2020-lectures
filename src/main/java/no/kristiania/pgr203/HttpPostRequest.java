@@ -1,6 +1,7 @@
 package no.kristiania.pgr203;
 
 import java.io.IOException;
+import java.net.Socket;
 
 public class HttpPostRequest extends HttpRequest {
     private String content;
@@ -15,6 +16,19 @@ public class HttpPostRequest extends HttpRequest {
 
     @Override
     public HttpResponse execute() throws IOException {
-        return super.execute();
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Host", hostname);
+        headers.add("Connection", "close");
+        headers.setContentLength(content.length());
+        try(Socket socket = new Socket(hostname, port)) {
+            socket.getOutputStream().write(("POST " + requestTarget + " HTTP/1.1\r\n").getBytes());
+            headers.write(socket.getOutputStream());
+            socket.getOutputStream().write("\r\n".getBytes());
+            socket.getOutputStream().write(content.getBytes());
+
+            socket.getOutputStream().flush();
+
+            return new HttpResponse(socket.getInputStream());
+        }
     }
 }
