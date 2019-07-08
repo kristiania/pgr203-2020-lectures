@@ -71,6 +71,7 @@ public class HttpServer {
 
     public static void main(String[] args) throws IOException {
         HttpServer server = new HttpServer(10080);
+        server.setRootResource(Path.of("src/main/resources/webapp"));
         server.start();
     }
 }

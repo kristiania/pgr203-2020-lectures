@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Products | KristianiaShop</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <h1>Products</h1>
+
+    <div id="productList"></div>
+</body>
+<script>
+    async function fetchProducts() {
+        const productsResponse = await fetch("/products");
+        if (productsResponse.ok) {
+            const products = await productsResponse.text();
+            document.getElementById("productList").innerHTML = products;
+        } else {
+            console.error("fetch failed " , productsResponse);
+        }
+    }
+
+    fetchProducts();
+</script>
+</html>
