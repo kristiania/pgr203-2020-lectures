@@ -8,9 +8,8 @@
 <body>
     <h1>Products</h1>
 
-    <div><a href="/shoppingCart.html">Show shopping cart</a></div>
-
     <div>
+        <h3>Filter</h3>
         <form>
             <select name="productCategory">
                 <option value="">None</option>
@@ -23,6 +22,7 @@
         </form>
     </div>
 
+    <h3>Products</h3>
     <form method="post" action="/shoppingCart">
         <select name="quantity">
             <option>1</option>
@@ -36,11 +36,15 @@
             <option>9</option>
         </select>
         <div id="productList"></div>
+        <button>Add to shopping cart</button>
     </form>
+
+    <div><a href="/shoppingCart.html">Show shopping cart</a></div>
+
 </body>
 <script>
     async function fetchProducts() {
-        const productsResponse = await fetch("/products");
+        const productsResponse = await fetch("/products" + window.location.search);
         if (productsResponse.ok) {
             const products = await productsResponse.text();
             document.getElementById("productList").innerHTML = products;

@@ -130,7 +130,7 @@ public class HttpServer {
 
     private String productsHtml(List<Product> products, Map<String, String> query) {
         Integer categoryId = null;
-        if (query != null && query.containsKey("productCategory")) {
+        if (query != null && query.containsKey("productCategory") && !query.get("productCategory").isEmpty()) {
             categoryId = Integer.parseInt(query.get("productCategory"));
         }
         StringBuilder productListing = new StringBuilder("<div>");
@@ -138,11 +138,13 @@ public class HttpServer {
             if (categoryId != null && product.getCategoryId() != categoryId) {
                 continue;
             }
-            productListing.append("<div><div>")
-                    .append(product.getName())
-                    .append("</div><button name='productId' value='")
+            productListing.append("<div><label>")
+                    .append("<input type='radio' name='productId' value='")
                     .append(product.getId())
-                    .append("'>Add to shopping to cart</button></div>");
+                    .append("'>")
+                    .append(product.getName())
+                    .append("</label></div>")
+                    ;
         }
         productListing.append("</div>");
         return productListing.toString();
