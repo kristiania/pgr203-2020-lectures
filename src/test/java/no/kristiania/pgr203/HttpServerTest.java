@@ -39,11 +39,10 @@ class HttpServerTest {
 
 
     @Test
-    void shouldRespondToHttpRequest() throws IOException, InterruptedException {
+    void shouldRespond404WhenNotFound() throws IOException {
         HttpRequest request = new HttpRequest("localhost", server.getPort(), "/hello");
         HttpResponse response = request.execute();
-        assertThat(response.getStatusCode()).isEqualTo(200);
-        assertThat(response.getBody()).isEqualTo("Hello world");
+        assertThat(response.getStatusCode()).isEqualTo(404);
     }
 
     @Test

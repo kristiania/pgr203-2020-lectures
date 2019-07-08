@@ -102,7 +102,15 @@ public class HttpServer {
         } else if (Files.isRegularFile(targetFile)) {
             content = Files.readString(targetFile);
         } else {
-            content = "Hello world";
+            clientSocket.getOutputStream().write("HTTP/1.1 404 Not found\r\n".getBytes());
+
+            responseHeaders.setContentLength(0);
+            responseHeaders.add("Connection", "close");
+            responseHeaders.write(clientSocket.getOutputStream());
+
+            clientSocket.getOutputStream().write("\r\n".getBytes());
+            clientSocket.getOutputStream().flush();
+            return;
         }
 
         clientSocket.getOutputStream().write("HTTP/1.1 200 OK\r\n".getBytes());

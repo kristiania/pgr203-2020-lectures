@@ -20,11 +20,8 @@ class HttpMessage {
     public static String readBytes(InputStream inputStream, int contentLength) throws IOException {
         StringBuilder result = new StringBuilder();
         int c;
-        while ((c = inputStream.read()) != -1) {
+        while (result.length() < contentLength && (c = inputStream.read()) != -1) {
             result.append((char)c);
-            if  (result.length() == contentLength) {
-                break;
-            }
         }
         return result.toString();
     }
