@@ -59,6 +59,18 @@ class HttpServerTest {
     }
 
     @Test
+    void shouldFilterProducts() throws IOException {
+        HttpRequest request = new HttpRequest("localhost", server.getPort(), "/products?productCategory=2");
+        HttpResponse response = request.execute();
+        assertThat(response.getStatusCode()).isEqualTo(200);
+        assertThat(response.getBody())
+                .doesNotContain(">Apples<")
+                .contains(">Chocolate<")
+                .contains(">Ice cream<")
+        ;
+    }
+
+    @Test
     void shouldAddToShoppingCart() throws IOException {
         HttpPostRequest request = new HttpPostRequest("localhost", server.getPort(), "/shoppingCart");
         request.setContent("productId=2");
@@ -97,8 +109,8 @@ class HttpServerTest {
 
     @Test
     void shouldFormatShoppingCart() {
-        Product apples = new Product(10, "Apples");
-        Product coconuts = new Product(100, "Coconuts");
+        Product apples = new Product(10, "Apples", 1);
+        Product coconuts = new Product(100, "Coconuts", 1);
 
         Map<Integer, Integer> shoppingCart = new HashMap<>();
         shoppingCart.put(apples.getId(), 10);

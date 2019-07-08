@@ -61,33 +61,21 @@ public class HttpServer {
 
         String requestMethod = requestLine.substring(0, firstSpace);
         String requestTarget = requestLine.substring(firstSpace+1, secondSpace);
+        int questionPos = requestTarget.indexOf('?');
+        String absolutePath = questionPos >= 0 ? requestTarget.substring(0, questionPos) : requestTarget;
+        String query = questionPos >= 0 ? requestTarget.substring(questionPos+1) : null;
 
         HttpHeaders responseHeaders = new HttpHeaders();
         String content;
-        Path targetFile = rootResource.resolve(requestTarget.substring(1));
-        if (requestTarget.equals("/products")) {
-            StringBuilder productListing = new StringBuilder("<div>");
-            for (Product product : getProducts()) {
-                productListing.append("<div><div>")
-                        .append(product.getName())
-                        .append("</div><button name='productId' value='")
-                        .append(product.getId())
-                        .append("'>Add to shopping to cart</button></div>");
-            }
-            productListing.append("</div>");
-            content = productListing.toString();
-        } else if (requestMethod.equals("GET") && requestTarget.equals("/shoppingCart")) {
+        Path targetFile = rootResource.resolve(absolutePath.substring(1));
+        if (absolutePath.equals("/products")) {
+            content = productsHtml(getProducts(), parseParameters(query));
+        } else if (requestMethod.equals("GET") && absolutePath.equals("/shoppingCart")) {
             content = shoppingCartHtml(getShoppingCart(), getProducts());
-        } else if (requestMethod.equals("POST") && requestTarget.equals("/shoppingCart")) {
+        } else if (requestMethod.equals("POST") && absolutePath.equals("/shoppingCart")) {
             String requestBody = HttpMessage.readBytes(clientSocket.getInputStream(), requestHeaders.getContentLength());
 
-            Map<String, String> parameters = new HashMap<>();
-            for (String parameter : requestBody.split("&")) {
-                int equalPos = parameter.indexOf('=');
-                String parameterName = parameter.substring(0, equalPos);
-                String parameterValue = parameter.substring(equalPos+1);
-                parameters.put(parameterName, parameterValue);
-            }
+            Map<String, String> parameters = parseParameters(requestBody);
 
             int quantity = parameters.containsKey("quantity") ? Integer.parseInt(parameters.get("quantity")) : 1;
             int productId = Integer.parseInt(parameters.get("productId"));
@@ -126,6 +114,40 @@ public class HttpServer {
         clientSocket.getOutputStream().flush();
     }
 
+    private Map<String, String> parseParameters(String requestBody) {
+        if (requestBody == null) {
+            return null;
+        }
+        Map<String, String> parameters = new HashMap<>();
+        for (String parameter : requestBody.split("&")) {
+            int equalPos = parameter.indexOf('=');
+            String parameterName = parameter.substring(0, equalPos);
+            String parameterValue = parameter.substring(equalPos+1);
+            parameters.put(parameterName, parameterValue);
+        }
+        return parameters;
+    }
+
+    private String productsHtml(List<Product> products, Map<String, String> query) {
+        Integer categoryId = null;
+        if (query != null && query.containsKey("productCategory")) {
+            categoryId = Integer.parseInt(query.get("productCategory"));
+        }
+        StringBuilder productListing = new StringBuilder("<div>");
+        for (Product product : products) {
+            if (categoryId != null && product.getCategoryId() != categoryId) {
+                continue;
+            }
+            productListing.append("<div><div>")
+                    .append(product.getName())
+                    .append("</div><button name='productId' value='")
+                    .append(product.getId())
+                    .append("'>Add to shopping to cart</button></div>");
+        }
+        productListing.append("</div>");
+        return productListing.toString();
+    }
+
     String shoppingCartHtml(Map<Integer, Integer> shoppingCart, List<Product> products) {
         StringBuilder shoppingCartContent = new StringBuilder("<div>");
         for (Map.Entry<Integer, Integer> entry : shoppingCart.entrySet()) {
@@ -147,9 +169,11 @@ public class HttpServer {
 
     List<Product> getProducts() {
         return Arrays.asList(
-                new Product(1, "Apples"),
-                new Product(2, "Bananas"),
-                new Product(3, "Coconuts")
+                new Product(1, "Apples", 1),
+                new Product(2, "Bananas", 1),
+                new Product(3, "Coconuts", 1),
+                new Product(4, "Chocolate", 2),
+                new Product(5, "Ice cream", 2)
         );
     }
 
