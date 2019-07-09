@@ -32,7 +32,25 @@ public class ProductDao {
         tmpProducts.add(product);
     }
 
-    public Product retrieve(int id) {
+    public Product retrieve(int id) throws SQLException {
+
+        try (Connection connection = dataSource.getConnection()) {
+            try (PreparedStatement stmt = connection.prepareStatement("select * from products where id = ?")) {
+                stmt.setInt(1, id);
+
+                try (ResultSet rs = stmt.executeQuery()) {
+                    if (rs.next()) {
+                        Product product = new Product();
+                        product.setId(rs.getInt("id"));
+                        product.setName(rs.getString("name"));
+
+                        return product;
+                    }
+                    return null;
+                }
+            }
+        }
+/*
         for (Product product : tmpProducts) {
             if (product.getId() == id) {
                 return product;
@@ -40,5 +58,7 @@ public class ProductDao {
         }
 
         return null;
+
+ */
     }
 }
