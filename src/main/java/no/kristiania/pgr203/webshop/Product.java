@@ -26,4 +26,12 @@ public class Product {
     int getCategoryId() {
         return categoryId;
     }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }
