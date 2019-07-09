@@ -5,11 +5,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class ProductDao {
-    private List<Product> tmpProducts = new ArrayList<>();
     private DataSource dataSource;
 
     public ProductDao(DataSource dataSource) {
@@ -29,11 +26,9 @@ public class ProductDao {
                 }
             }
         }
-        tmpProducts.add(product);
     }
 
     public Product retrieve(int id) throws SQLException {
-
         try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement stmt = connection.prepareStatement("select * from products where id = ?")) {
                 stmt.setInt(1, id);
@@ -50,15 +45,5 @@ public class ProductDao {
                 }
             }
         }
-/*
-        for (Product product : tmpProducts) {
-            if (product.getId() == id) {
-                return product;
-            }
-        }
-
-        return null;
-
- */
     }
 }
