@@ -29,8 +29,10 @@ public class WebshopServer {
         Map<Integer, Integer> shoppingCart = new HashMap<>();
 
         server.addHandler(new AddToShoppingCartHandler(shoppingCart));
-        server.addHandler(new ShowShoppingCartHandler(shoppingCart, new ProductDao(createDataSource())));
-        server.addHandler(new ShowProductsHandler(new ProductDao(createDataSource())));
+        var dataSource = createDataSource();
+        server.addHandler(new ShowCategoriesHandler(new ProductCategoryDao(dataSource)));
+        server.addHandler(new ShowShoppingCartHandler(shoppingCart, new ProductDao(dataSource)));
+        server.addHandler(new ShowProductsHandler(new ProductDao(dataSource)));
         server.addHandler(new DirectoryHttpHandler(Path.of("src/main/resources/webapp")));
 
         server.start();

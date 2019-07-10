@@ -7,7 +7,9 @@ import no.kristiania.pgr203.http.server.DirectoryHttpHandler;
 import no.kristiania.pgr203.http.server.HttpServer;
 import no.kristiania.pgr203.webshop.AddToShoppingCartHandler;
 import no.kristiania.pgr203.webshop.Product;
+import no.kristiania.pgr203.webshop.ProductCategoryDao;
 import no.kristiania.pgr203.webshop.ProductDao;
+import no.kristiania.pgr203.webshop.ShowCategoriesHandler;
 import no.kristiania.pgr203.webshop.ShowProductsHandler;
 import no.kristiania.pgr203.webshop.ShowShoppingCartHandler;
 import org.flywaydb.core.Flyway;
@@ -40,7 +42,7 @@ class HttpServerTest {
     }
 
     @BeforeEach
-    void setUp() throws IOException, SQLException {
+    void setUp() throws IOException {
         server = new HttpServer(0);
         server.start();
     }
@@ -152,5 +154,20 @@ class HttpServerTest {
         assertThat(new ShowShoppingCartHandler(shoppingCart, productDao).shoppingCartHtml())
                 .contains(">10 x Apples<")
                 .contains(">3 x Coconuts<");
+    }
+
+    @Test
+    void shouldFetchCategories() throws IOException {
+        var categoriesDao = new ProductCategoryDao(createDataSource());
+
+        server.addHandler(new ShowCategoriesHandler(categoriesDao));
+        HttpRequest request = new HttpRequest("localhost", server.getPort(), "/productCategories?productCategory=2");
+        HttpResponse response = request.execute();
+        assertThat(response.getStatusCode()).isEqualTo(200);
+        assertThat(response.getBody())
+                .contains("<option value=''>None</option>")
+                .contains("<option value='1'>Fruits</option>")
+                .contains("<option value='2' selected='selected'>Candies</option>")
+        ;
     }
 }

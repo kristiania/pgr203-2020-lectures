@@ -11,13 +11,7 @@
     <div>
         <h3>Filter</h3>
         <form>
-            <select name="productCategory">
-                <option value="">None</option>
-                <option value="1">Fruits</option>
-                <option value="2">Candies</option>
-                <option value="3">Breakfast</option>
-                <option value="4">Dinner</option>
-            </select>
+            <select name="productCategory" id="categories"></select>
             <button>Filter</button>
         </form>
     </div>
@@ -53,6 +47,17 @@
         }
     }
 
+    async function fetchCategories() {
+        const categoriesResponse = await fetch("/productCategories" + window.location.search);
+        if (categoriesResponse.ok) {
+            const categories = await categoriesResponse.text();
+            document.getElementById("categories").innerHTML = categories;
+        } else {
+            console.error("fetch failed " , categoriesResponse);
+        }
+    }
+
+    fetchCategories();
     fetchProducts();
 </script>
 </html>
