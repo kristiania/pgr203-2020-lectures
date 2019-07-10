@@ -8,21 +8,25 @@ import no.kristiania.pgr203.http.server.HttpServerResponse;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
+import java.sql.SQLException;
 
 public class ShowProductsHandler implements HttpRequestHandler {
-    private List<Product> products;
+    private ProductDao products;
 
-    public ShowProductsHandler(List<Product> products) {
+    public ShowProductsHandler(ProductDao products) {
         this.products = products;
     }
 
     @Override
     public HttpServerResponse execute(String requestMethod, String absolutePath, String query, HttpHeaders requestHeaders, InputStream inputStream) throws IOException {
-        return new HttpContentResponse(content(HttpQuery.parse(query)));
+        try {
+            return new HttpContentResponse(content(HttpQuery.parse(query)));
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    private String content(HttpQuery query) {
+    private String content(HttpQuery query) throws SQLException {
         Integer categoryId = null;
         if (query != null && query.containsKey("productCategory") && !query.get("productCategory").isEmpty()) {
             categoryId = Integer.parseInt(query.get("productCategory"));
@@ -30,9 +34,9 @@ public class ShowProductsHandler implements HttpRequestHandler {
         return content(categoryId);
     }
 
-    private String content(Integer categoryId) {
+    private String content(Integer categoryId) throws SQLException {
         StringBuilder productListing = new StringBuilder("<div>");
-        for (Product product : products) {
+        for (Product product : products.listAll()) {
             if (categoryId != null && product.getCategoryId() != categoryId) {
                 continue;
             }

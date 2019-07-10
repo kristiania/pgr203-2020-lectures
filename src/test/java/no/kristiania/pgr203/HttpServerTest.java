@@ -1,15 +1,17 @@
 package no.kristiania.pgr203;
 
-import no.kristiania.pgr203.http.server.DirectoryHttpHandler;
 import no.kristiania.pgr203.http.HttpPostRequest;
 import no.kristiania.pgr203.http.HttpRequest;
 import no.kristiania.pgr203.http.HttpResponse;
+import no.kristiania.pgr203.http.server.DirectoryHttpHandler;
 import no.kristiania.pgr203.http.server.HttpServer;
 import no.kristiania.pgr203.webshop.AddToShoppingCartHandler;
 import no.kristiania.pgr203.webshop.Product;
+import no.kristiania.pgr203.webshop.ProductDao;
 import no.kristiania.pgr203.webshop.ShowProductsHandler;
 import no.kristiania.pgr203.webshop.ShowShoppingCartHandler;
-import no.kristiania.pgr203.webshop.WebshopServer;
+import org.flywaydb.core.Flyway;
+import org.h2.jdbcx.JdbcDataSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -17,7 +19,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -29,8 +31,16 @@ class HttpServerTest {
     private Random random = new Random();
     private HttpServer server;
 
+    static JdbcDataSource createDataSource() {
+        JdbcDataSource dataSource = new JdbcDataSource();
+        dataSource.setUrl("jdbc:h2:mem:testServer;DB_CLOSE_DELAY=-1");
+
+        Flyway.configure().dataSource(dataSource).load().migrate();
+        return dataSource;
+    }
+
     @BeforeEach
-    void setUp() throws IOException {
+    void setUp() throws IOException, SQLException {
         server = new HttpServer(0);
         server.start();
     }
@@ -59,7 +69,7 @@ class HttpServerTest {
 
     @Test
     void shouldReturnProducts() throws IOException {
-        server.addHandler(new ShowProductsHandler(WebshopServer.getProducts()));
+        server.addHandler(new ShowProductsHandler(new ProductDao(createDataSource())));
         HttpRequest request = new HttpRequest("localhost", server.getPort(), "/products");
         HttpResponse response = request.execute();
         assertThat(response.getStatusCode()).isEqualTo(200);
@@ -71,7 +81,7 @@ class HttpServerTest {
 
     @Test
     void shouldFilterProducts() throws IOException {
-        server.addHandler(new ShowProductsHandler(WebshopServer.getProducts()));
+        server.addHandler(new ShowProductsHandler(new ProductDao(createDataSource())));
         HttpRequest request = new HttpRequest("localhost", server.getPort(), "/products?productCategory=2");
         HttpResponse response = request.execute();
         assertThat(response.getStatusCode()).isEqualTo(200);
@@ -115,28 +125,31 @@ class HttpServerTest {
     }
 
     @Test
-    void shouldShowShoppingCart() throws IOException {
+    void shouldShowShoppingCart() throws IOException, SQLException {
         HashMap<Integer, Integer> shoppingCart = new HashMap<>();
-        server.addHandler(new ShowShoppingCartHandler(shoppingCart, WebshopServer.getProducts()));
+        server.addHandler(new ShowShoppingCartHandler(shoppingCart, new ProductDao(createDataSource())));
         shoppingCart.put(1, 10);
         shoppingCart.put(3, 1);
 
         HttpRequest request = new HttpRequest("localhost", server.getPort(), "/shoppingCart");
         String body = request.execute().getBody();
 
-        assertThat(body).isEqualTo(new ShowShoppingCartHandler(shoppingCart, WebshopServer.getProducts()).shoppingCartHtml());
+        assertThat(body).isEqualTo(new ShowShoppingCartHandler(shoppingCart, new ProductDao(createDataSource())).shoppingCartHtml());
     }
 
     @Test
-    void shouldFormatShoppingCart() {
+    void shouldFormatShoppingCart() throws SQLException {
+        var productDao = new ProductDao(createDataSource());
         Product apples = new Product(10, "Apples", 1);
         Product coconuts = new Product(100, "Coconuts", 1);
+        productDao.insert(apples);
+        productDao.insert(coconuts);
 
         Map<Integer, Integer> shoppingCart = new HashMap<>();
         shoppingCart.put(apples.getId(), 10);
         shoppingCart.put(coconuts.getId(), 3);
 
-        assertThat(new ShowShoppingCartHandler(shoppingCart, Arrays.asList(apples, coconuts)).shoppingCartHtml())
+        assertThat(new ShowShoppingCartHandler(shoppingCart, productDao).shoppingCartHtml())
                 .contains(">10 x Apples<")
                 .contains(">3 x Coconuts<");
     }
