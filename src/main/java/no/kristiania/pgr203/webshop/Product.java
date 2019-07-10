@@ -1,9 +1,11 @@
 package no.kristiania.pgr203.webshop;
 
+import java.util.Objects;
+
 public class Product {
     private int id;
     private String name;
-    private int categoryId;
+    private long categoryId;
 
     public Product(int id, String name, int categoryId) {
         this.id = id;
@@ -12,7 +14,6 @@ public class Product {
     }
 
     public Product() {
-
     }
 
     public int getId() {
@@ -23,7 +24,7 @@ public class Product {
         return name;
     }
 
-    int getCategoryId() {
+    long getCategoryId() {
         return categoryId;
     }
 
@@ -33,5 +34,33 @@ public class Product {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setCategoryId(long categoryId) {
+        this.categoryId = categoryId;
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", categoryId=" + categoryId +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Product product = (Product) o;
+        return id == product.id &&
+                categoryId == product.categoryId &&
+                Objects.equals(name, product.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, categoryId);
     }
 }
