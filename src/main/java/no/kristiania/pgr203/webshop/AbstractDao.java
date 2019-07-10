@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class AbstractDao<T> {
-    protected DataSource dataSource;
+    protected final DataSource dataSource;
 
     public AbstractDao(DataSource dataSource) {
         this.dataSource = dataSource;

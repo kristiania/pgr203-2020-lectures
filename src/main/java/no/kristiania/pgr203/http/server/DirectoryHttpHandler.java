@@ -7,14 +7,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class DirectoryHttpHandler implements HttpRequestHandler {
-    private Path directory;
+    private final Path directory;
 
     public DirectoryHttpHandler(Path directory) {
         this.directory = directory;
     }
 
     @Override
-    public HttpServerResponse execute(String requestMethod, String absolutePath, String query, HttpHeaders requestHeaders, InputStream inputStream) {
+    public HttpServerResponse execute(String absolutePath, String query, HttpHeaders requestHeaders, InputStream inputStream) {
         return new DirectoryHttpServerResponse(directory.resolve(absolutePath.substring(1)));
     }
 

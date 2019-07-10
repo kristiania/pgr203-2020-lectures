@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 public class HttpContentResponse implements HttpServerResponse {
-    private String content;
+    private final String content;
 
     public HttpContentResponse(String content) {
         this.content = content;

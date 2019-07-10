@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 public class HttpServerRedirectResponse implements HttpServerResponse {
-    private String location;
+    private final String location;
 
     public HttpServerRedirectResponse(String location) {
         this.location = location;

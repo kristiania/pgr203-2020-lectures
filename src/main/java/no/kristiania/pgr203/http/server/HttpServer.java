@@ -14,7 +14,7 @@ public class HttpServer {
 
     private ServerSocket serverSocket;
 
-    private List<HttpRequestHandler> handlers = new ArrayList<>();
+    private final List<HttpRequestHandler> handlers = new ArrayList<>();
 
     public HttpServer(int port) throws IOException {
         serverSocket = new ServerSocket(port);
@@ -64,7 +64,7 @@ public class HttpServer {
 
         HttpRequestHandler handler = findRequestHandler(requestMethod, absolutePath);
         handler
-                .execute(requestMethod, absolutePath, query, requestHeaders, clientSocket.getInputStream())
+                .execute(absolutePath, query, requestHeaders, clientSocket.getInputStream())
                 .write(clientSocket.getOutputStream(), "localhost" + ":" + getPort());
     }
 

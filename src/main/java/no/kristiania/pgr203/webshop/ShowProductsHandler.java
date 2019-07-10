@@ -6,19 +6,18 @@ import no.kristiania.pgr203.http.server.HttpContentResponse;
 import no.kristiania.pgr203.http.server.HttpRequestHandler;
 import no.kristiania.pgr203.http.server.HttpServerResponse;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
 
 public class ShowProductsHandler implements HttpRequestHandler {
-    private ProductDao products;
+    private final ProductDao products;
 
     public ShowProductsHandler(ProductDao products) {
         this.products = products;
     }
 
     @Override
-    public HttpServerResponse execute(String requestMethod, String absolutePath, String query, HttpHeaders requestHeaders, InputStream inputStream) throws IOException {
+    public HttpServerResponse execute(String absolutePath, String query, HttpHeaders requestHeaders, InputStream inputStream) {
         try {
             return new HttpContentResponse(content(HttpQuery.parse(query)));
         } catch (SQLException e) {

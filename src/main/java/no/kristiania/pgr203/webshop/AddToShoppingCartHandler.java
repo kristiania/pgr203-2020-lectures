@@ -19,7 +19,7 @@ public class AddToShoppingCartHandler implements HttpRequestHandler {
     }
 
     @Override
-    public HttpServerResponse execute(String requestMethod, String absolutePath, String query, HttpHeaders requestHeaders, InputStream inputStream) throws IOException {
+    public HttpServerResponse execute(String absolutePath, String query, HttpHeaders requestHeaders, InputStream inputStream) throws IOException {
         String requestBody = HttpMessage.readBytes(inputStream, requestHeaders.getContentLength());
 
         HttpQuery parameters = HttpQuery.parse(requestBody);

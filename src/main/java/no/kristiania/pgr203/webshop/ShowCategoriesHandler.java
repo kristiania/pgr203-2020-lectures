@@ -10,14 +10,14 @@ import java.io.InputStream;
 import java.sql.SQLException;
 
 public class ShowCategoriesHandler implements HttpRequestHandler {
-    private ProductCategoryDao categoriesDao;
+    private final ProductCategoryDao categoriesDao;
 
     public ShowCategoriesHandler(ProductCategoryDao categoriesDao) {
         this.categoriesDao = categoriesDao;
     }
 
     @Override
-    public HttpServerResponse execute(String requestMethod, String absolutePath, String query, HttpHeaders requestHeaders, InputStream inputStream) {
+    public HttpServerResponse execute(String absolutePath, String query, HttpHeaders requestHeaders, InputStream inputStream) {
         try {
             return new HttpContentResponse(content(HttpQuery.parse(query)));
         } catch (SQLException e) {

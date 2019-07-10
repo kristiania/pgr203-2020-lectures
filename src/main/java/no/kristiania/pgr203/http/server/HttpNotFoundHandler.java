@@ -6,7 +6,7 @@ import java.io.InputStream;
 
 public class HttpNotFoundHandler implements HttpRequestHandler {
     @Override
-    public HttpServerResponse execute(String requestMethod, String absolutePath, String query, HttpHeaders requestHeaders, InputStream inputStream) {
+    public HttpServerResponse execute(String absolutePath, String query, HttpHeaders requestHeaders, InputStream inputStream) {
         return new HttpNotFoundResponse();
     }
 

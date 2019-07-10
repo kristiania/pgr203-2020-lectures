@@ -9,8 +9,8 @@ public class HttpRequest {
 
     protected final String hostname;
     final int port;
-    protected String requestTarget;
-    HttpHeaders headers = new HttpHeaders();
+    protected final String requestTarget;
+    final HttpHeaders headers = new HttpHeaders();
 
     public HttpRequest(String hostname, int port, String requestTarget) {
         this.hostname = hostname;
@@ -21,7 +21,7 @@ public class HttpRequest {
     }
 
     public static void main(String[] args) throws IOException {
-        HttpResponse response = new HttpRequest("localhost", 0, "/echo?status=200&Content-Type=text%2Fhtml&body=Hello%tgere!")
+        HttpResponse response = new HttpRequest("localhost", 0, "/echo?status=200")
                 .execute();
         System.out.println(response.getStatusCode());
     }

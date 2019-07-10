@@ -7,9 +7,7 @@ import org.h2.jdbcx.JdbcDataSource;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class WebshopServer {
@@ -36,16 +34,6 @@ public class WebshopServer {
         server.addHandler(new DirectoryHttpHandler(Path.of("src/main/resources/webapp")));
 
         server.start();
-    }
-
-    public static List<Product> getProducts() {
-        return Arrays.asList(
-                new Product(1, "Apples", 1),
-                new Product(2, "Bananas", 1),
-                new Product(3, "Coconuts", 1),
-                new Product(4, "Chocolate", 2),
-                new Product(5, "Ice cream", 2)
-        );
     }
 
 }

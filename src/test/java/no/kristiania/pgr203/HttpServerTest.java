@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class HttpServerTest {
 
-    private Random random = new Random();
+    private final Random random = new Random();
     private HttpServer server;
 
     static JdbcDataSource createDataSource() {

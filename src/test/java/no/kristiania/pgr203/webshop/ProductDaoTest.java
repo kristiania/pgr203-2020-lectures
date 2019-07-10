@@ -14,13 +14,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class ProductDaoTest {
 
-    private JdbcDataSource dataSource;
     private ProductDao dao;
-    private List<ProductCategory> categories = new ArrayList<>();
+    private final List<ProductCategory> categories = new ArrayList<>();
 
     @BeforeEach
     void setUp() throws SQLException {
-        dataSource = createDataSource();
+        JdbcDataSource dataSource = createDataSource();
         dao = new ProductDao(dataSource);
 
         var productCategoryDao = new ProductCategoryDao(dataSource);
@@ -81,7 +80,7 @@ class ProductDaoTest {
         return product;
     }
 
-    private static Random random = new Random();
+    private static final Random random = new Random();
 
     @SafeVarargs
     static <T> T pickOne(T... options) {

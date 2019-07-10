@@ -8,7 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class DirectoryHttpServerResponse implements HttpServerResponse {
-    private Path path;
+    private final Path path;
 
     DirectoryHttpServerResponse(Path path) {
         this.path = path;
