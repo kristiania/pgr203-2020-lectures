@@ -5,14 +5,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
-public class ProductDao {
-    private DataSource dataSource;
+public class ProductDao extends AbstractDao<Product> {
 
     public ProductDao(DataSource dataSource) {
-        this.dataSource = dataSource;
+        super(dataSource);
     }
 
     public void insert(Product product) throws SQLException {
@@ -30,22 +28,8 @@ public class ProductDao {
         }
     }
 
-    public Product retrieve(int id) throws SQLException {
-        try (Connection connection = dataSource.getConnection()) {
-            try (PreparedStatement stmt = connection.prepareStatement("select * from products where id = ?")) {
-                stmt.setInt(1, id);
-
-                try (ResultSet rs = stmt.executeQuery()) {
-                    if (rs.next()) {
-                        return mapToProduct(rs);
-                    }
-                    return null;
-                }
-            }
-        }
-    }
-
-    private Product mapToProduct(ResultSet rs) throws SQLException {
+    @Override
+    protected Product mapResultSet(ResultSet rs) throws SQLException {
         var product = new Product();
         product.setId(rs.getInt("id"));
         product.setName(rs.getString("name"));
@@ -53,32 +37,16 @@ public class ProductDao {
         return product;
     }
 
-    public List<Product> listAll() throws SQLException {
-        try (var connection = dataSource.getConnection()) {
-            try (var stmt = connection.prepareStatement("select * from products")) {
-                try (var rs = stmt.executeQuery()) {
-                    var products = new ArrayList<Product>();
-                    while (rs.next()) {
-                        products.add(mapToProduct(rs));
-                    }
-                    return products;
-                }
-            }
-        }
-    }
-
     public List<Product> listByCategory(long categoryId) throws SQLException {
         try (var connection = dataSource.getConnection()) {
             try (var stmt = connection.prepareStatement("select * from products where product_category = ?")) {
                 stmt.setLong(1, categoryId);
-                try (var rs = stmt.executeQuery()) {
-                    var products = new ArrayList<Product>();
-                    while (rs.next()) {
-                        products.add(mapToProduct(rs));
-                    }
-                    return products;
-                }
+                return queryForList(stmt);
             }
         }
+    }
+
+    public List<Product> listAll() throws SQLException {
+        return listAll("select * from products");
     }
 }

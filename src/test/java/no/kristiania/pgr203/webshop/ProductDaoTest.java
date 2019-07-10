@@ -49,8 +49,7 @@ class ProductDaoTest {
         Product product2 = sampleProduct();
         dao.insert(product2);
 
-        assertThat(dao.listAll())
-                .contains(product, product2);
+        assertThat(dao.listAll()).contains(product, product2);
     }
 
     @Test
