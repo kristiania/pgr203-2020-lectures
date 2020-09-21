@@ -25,7 +25,7 @@ public class HttpServer {
     }
 
     private void handleRequest(Socket clientSocket) throws IOException {
-        String requestLine = HttpClient.readLine(clientSocket);
+        String requestLine = HttpMessage.readLine(clientSocket);
         System.out.println(requestLine);
 
         String requestTarget = requestLine.split(" ")[1];
