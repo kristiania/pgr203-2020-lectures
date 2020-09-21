@@ -18,15 +18,9 @@ public class HttpClient {
 
         // HTTP Request consists of request line + 0 or more request headers
         //  request line consists of "verb" (GET, POST, PUT) request target ("/echo", "/echo?status=404"), protocol (HTTP/1.1)
-        String request = "GET " + requestTarget + " HTTP/1.1\r\n" +
-                // request header consists of "name: value"
-                // header host brukes for å angi hostnavnet i URL
-                "Host: " + hostname + "\r\n" +
-                // request ends with empty line
-                "\r\n";
-
-        // send request to server
-        socket.getOutputStream().write(request.getBytes());
+        HttpMessage requestMessage = new HttpMessage("GET " + requestTarget + " HTTP/1.1");
+        requestMessage.setHeader("Host", hostname);
+        requestMessage.write(socket);
 
         // The first line in the response is called status line or response line
         // response line consists of protocol ("HTTP/1.1") status code (200, 404, 401, 500) and status message
