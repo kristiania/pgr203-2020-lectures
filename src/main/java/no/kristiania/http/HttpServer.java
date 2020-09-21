@@ -39,6 +39,12 @@ public class HttpServer {
             body = queryString.getParameter("body");
         } else if (!requestTarget.equals("/echo")) {
             File targetFile = new File(documentRoot, requestTarget);
+
+            if (!targetFile.exists()) {
+                writeResponse(clientSocket, "404", requestTarget + " not found");
+                return;
+            }
+
             String responseHeaders = "HTTP/1.1 200 OK\r\n" +
                     "Content-Length: " + targetFile.length() + "\r\n" +
                     "Content-Type: text/plain\r\n" +
