@@ -47,7 +47,7 @@ public class HttpServer {
 
             String responseHeaders = "HTTP/1.1 200 OK\r\n" +
                     "Content-Length: " + targetFile.length() + "\r\n" +
-                    "Content-Type: text/plain\r\n" +
+                    "Content-Type: text/html\r\n" +
                     "\r\n";
             clientSocket.getOutputStream().write(responseHeaders.getBytes());
             try (FileInputStream inputStream = new FileInputStream(targetFile)) {
@@ -72,7 +72,8 @@ public class HttpServer {
     }
 
     public static void main(String[] args) throws IOException {
-        new HttpServer(8080);
+        HttpServer server = new HttpServer(8080);
+        server.setDocumentRoot(new File("src/main/resources"));
     }
 
     public void setDocumentRoot(File documentRoot) {
