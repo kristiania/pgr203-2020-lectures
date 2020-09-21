@@ -25,22 +25,24 @@ public class HttpServer {
         System.out.println(requestLine);
 
         String requestTarget = requestLine.split(" ")[1];
-        String statusCode = "200";
+        String statusCode = null;
+        String body = null;
 
         int questionPos = requestTarget.indexOf('?');
         if (questionPos != -1) {
-            String queryString = requestTarget.substring(questionPos+1);
-            int equalPos = queryString.indexOf('=');
-            String parameterName = queryString.substring(0, equalPos);
-            String parameterValue = queryString.substring(equalPos+1);
-            statusCode = parameterValue;
+            QueryString queryString = new QueryString(requestTarget.substring(questionPos + 1));
+            statusCode = queryString.getParameter("status");
+            body = queryString.getParameter("body");
         }
 
+        if (statusCode == null) statusCode = "200";
+        if (body == null) body = "Hello <strong>World</strong>!";
+
         String response = "HTTP/1.1 " + statusCode + " OK\r\n" +
-                "Content-Length: 29\r\n" +
+                "Content-Length: " + body.length() + "\r\n" +
                 "Content-Type: text/plain\r\n" +
                 "\r\n" +
-                "Hello <strong>World</strong>!";
+                body;
 
         clientSocket.getOutputStream().write(response.getBytes());
     }
