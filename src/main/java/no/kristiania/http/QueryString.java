@@ -31,7 +31,7 @@ public class QueryString {
                     .append(parameter.getValue());
         }
 
-        return "?" + result.toString();
+        return result.toString();
     }
 
     public void addParameter(String key, String value) {

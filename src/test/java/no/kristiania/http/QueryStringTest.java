@@ -38,9 +38,9 @@ public class QueryStringTest {
     @Test
     void shouldSerializeQueryString() {
         QueryString queryString = new QueryString("status=200");
-        assertEquals("?status=200", queryString.getQueryString());
+        assertEquals("status=200", queryString.getQueryString());
         queryString.addParameter("body", "Hello");
-        assertEquals("?status=200&body=Hello", queryString.getQueryString());
+        assertEquals("status=200&body=Hello", queryString.getQueryString());
     }
 
 }
