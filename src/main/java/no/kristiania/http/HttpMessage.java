@@ -71,4 +71,15 @@ public class HttpMessage {
             setHeader(headerName, headerValue);
         }
     }
+
+    public String readBody(Socket socket) throws IOException {
+        // Response header content-length tells who many bytes the response body is
+        int contentLength = Integer.parseInt(getHeader("Content-Length"));
+        StringBuilder body = new StringBuilder();
+        for (int i = 0; i < contentLength; i++) {
+            // Read content body based on content-length
+            body.append((char)socket.getInputStream().read());
+        }
+        return body.toString();
+    }
 }
