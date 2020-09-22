@@ -2,10 +2,12 @@ package no.kristiania.http;
 
 import org.junit.jupiter.api.Test;
 
+import javax.management.Query;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Date;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -66,5 +68,15 @@ class HttpServerTest {
         Files.writeString(new File(documentRoot, "plain.txt").toPath(), "Plain text");
         HttpClient client = new HttpClient("localhost", 10007, "/plain.txt");
         assertEquals("text/plain", client.getResponseHeader("Content-Type"));
+    }
+
+    @Test
+    void shouldPostProduct() throws IOException {
+        HttpServer server = new HttpServer(10008);
+        QueryString product = new QueryString("");
+        product.addParameter("productName", "Apples");
+        product.addParameter("price", "100");
+        new HttpClient("localhost", 10008, "/addProduct", "POST", product);
+        assertEquals(List.of("Apples"), server.getProductNames());
     }
 }

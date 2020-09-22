@@ -33,6 +33,20 @@ public class HttpClient {
         responseBody = body.toString();
     }
 
+    public HttpClient(String hostname, int port, String requestTarget, String method, QueryString form) throws IOException {
+        Socket socket = new Socket(hostname, port);
+
+        String requestBody = form.getQueryString();
+
+        HttpMessage requestMessage = new HttpMessage(method + " " + requestTarget + " HTTP/1.1");
+        requestMessage.setHeader("Host", hostname);
+        requestMessage.setHeader("Content-Length", String.valueOf(requestBody.length()));
+        requestMessage.write(socket);
+        socket.getOutputStream().write(requestBody.getBytes());
+
+        responseMessage = HttpMessage.read(socket);
+    }
+
     public static void main(String[] args) throws IOException {
         HttpClient client = new HttpClient("urlecho.appspot.com", 80, "/echo?status=404&Content-Type=text%2Fhtml&body=Hello+world");
         System.out.println(client.getResponseBody());

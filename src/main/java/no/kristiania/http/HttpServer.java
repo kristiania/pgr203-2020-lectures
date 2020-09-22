@@ -5,10 +5,13 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 public class HttpServer {
 
     private File documentRoot;
+    private List<String> productNames = new ArrayList<>();
 
     public HttpServer(int port) throws IOException {
         ServerSocket serverSocket = new ServerSocket(port);
@@ -80,5 +83,9 @@ public class HttpServer {
 
     public void setDocumentRoot(File documentRoot) {
         this.documentRoot = documentRoot;
+    }
+
+    public List<String> getProductNames() {
+        return productNames;
     }
 }
