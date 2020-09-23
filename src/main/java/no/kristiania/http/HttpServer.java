@@ -45,23 +45,27 @@ public class HttpServer {
             }
         } else {
             File file = new File(documentRoot, requestTarget);
-            String response = "HTTP/1.1 " + "200" + " OK\r\n" +
-                    "Content-Length: " + file.length() + "\r\n" +
-                    "Content-Type: text/plain\r\n" +
-                    "\r\n";
+            HttpMessage responseMessage = new HttpMessage();
+            responseMessage.setHeader("Content-Type", "text/plain");
+            if (file.toString().endsWith(".html")) {
+                responseMessage.setHeader("Content-Type", "text/html");
+            }
+            responseMessage.setHeader("Content-Length", String.valueOf(file.length()));
 
-            clientSocket.getOutputStream().write(response.getBytes());
+            responseMessage.setStartLine("HTTP/1.1 " + "200" + " OK");
+            responseMessage.write(clientSocket);
+
             new FileInputStream(file).transferTo(clientSocket.getOutputStream());
             return;
         }
 
-        String response = "HTTP/1.1 " + statusCode + " OK\r\n" +
-                "Content-Length: " + body.length() + "\r\n" +
-                "Content-Type: text/plain\r\n" +
-                "\r\n" +
-                body;
+        HttpMessage responseMessage = new HttpMessage();
+        responseMessage.setStartLine("HTTP/1.1 " + statusCode + " OK");
+        responseMessage.setHeader("Content-Length", String.valueOf(body.length()));
+        responseMessage.setHeader("Content-Type", "text/plain");
+        responseMessage.write(clientSocket);
 
-        clientSocket.getOutputStream().write(response.getBytes());
+        clientSocket.getOutputStream().write(body.getBytes());
     }
 
     public static void main(String[] args) throws IOException {
