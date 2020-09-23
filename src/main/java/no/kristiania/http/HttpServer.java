@@ -35,16 +35,22 @@ public class HttpServer {
         String requestTarget = requestLine.split(" ")[1];
         // Example "/echo?body=hello"
         String statusCode = "200";
+        int contentLength = 29;
 
         int questionPos = requestTarget.indexOf('?');
         if (questionPos != -1) {
             // body=hello
             QueryString queryString = new QueryString(requestTarget.substring(questionPos+1));
-            statusCode = queryString.getParameter("status");
+            if (queryString.getParameter("status") != null) {
+                statusCode = queryString.getParameter("status");
+            }
+            if (queryString.getParameter("body") != null) {
+                contentLength = queryString.getParameter("body").length();
+            }
         }
 
         String response = "HTTP/1.1 " + statusCode + " OK\r\n" +
-                "Content-Length: 29\r\n" +
+                "Content-Length: " + contentLength + "\r\n" +
                 "Content-Type: text/plain\r\n" +
                 "\r\n" +
                 "Hello <strong>World</strong>!";
