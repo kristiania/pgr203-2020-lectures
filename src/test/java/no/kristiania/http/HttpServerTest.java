@@ -2,7 +2,10 @@ package no.kristiania.http;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -34,4 +37,17 @@ class HttpServerTest {
         HttpClient client = new HttpClient("localhost", 10004,"/echo?body=HelloWorld");
         assertEquals("HelloWorld", client.getResponseBody());
     }
+
+    @Test
+    void shouldReturnFileOnDisk() throws IOException {
+        HttpServer server = new HttpServer(10005);
+        File documentRoot = new File("target");
+        server.setDocumentRoot(documentRoot);
+        String fileContent = "Test" + new Date();
+        Files.writeString(new File(documentRoot, "Test.txt").toPath(), fileContent);
+        HttpClient client = new HttpClient("localhost", 10005,"/Test.txt");
+        assertEquals(fileContent, client.getResponseBody());
+    }
+
+
 }

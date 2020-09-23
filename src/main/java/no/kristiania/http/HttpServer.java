@@ -1,10 +1,13 @@
 package no.kristiania.http;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
 public class HttpServer {
+
+    private File documentRoot;
 
     public HttpServer(int port) throws IOException {
         ServerSocket serverSocket = new ServerSocket(port);
@@ -33,12 +36,13 @@ public class HttpServer {
         if (questionPos != -1) {
             QueryString qs = new QueryString(requestTarget.substring(questionPos + 1));
 
-            if (qs.getParameter("status") != null)
+            if (qs.hasParameter("status")) {
                 statusCode = qs.getParameter("status");
-            if (qs.getParameter("body") != null)
+            }
+            if (qs.hasParameter("body")) {
                 body = qs.getParameter("body");
+            }
         }
-
 
         String response = "HTTP/1.1 " + statusCode + " OK\r\n" +
                 "Content-Length: " + body.length() + "\r\n" +
@@ -51,5 +55,9 @@ public class HttpServer {
 
     public static void main(String[] args) throws IOException {
         new HttpServer(8080);
+    }
+
+    public void setDocumentRoot(File documentRoot) {
+        this.documentRoot = documentRoot;
     }
 }

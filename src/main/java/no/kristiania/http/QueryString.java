@@ -36,4 +36,8 @@ public class QueryString {
     public void addParameter(String key, String value) {
         parameters.put(key, value);
     }
+
+    public boolean hasParameter(String parameterName) {
+        return parameters.containsKey(parameterName);
+    }
 }
