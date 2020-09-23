@@ -35,7 +35,7 @@ public class HttpServer {
         String requestTarget = requestLine.split(" ")[1];
         // Example "/echo?body=hello"
         String statusCode = "200";
-        int contentLength = 29;
+        String body = "Hello <strong>World</strong>!";
 
         int questionPos = requestTarget.indexOf('?');
         if (questionPos != -1) {
@@ -45,15 +45,15 @@ public class HttpServer {
                 statusCode = queryString.getParameter("status");
             }
             if (queryString.getParameter("body") != null) {
-                contentLength = queryString.getParameter("body").length();
+                body = queryString.getParameter("body");
             }
         }
 
         String response = "HTTP/1.1 " + statusCode + " OK\r\n" +
-                "Content-Length: " + contentLength + "\r\n" +
+                "Content-Length: " + body.length() + "\r\n" +
                 "Content-Type: text/plain\r\n" +
                 "\r\n" +
-                "Hello <strong>World</strong>!";
+                body;
 
         // Write the response back to the client
         clientSocket.getOutputStream().write(response.getBytes());
