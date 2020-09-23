@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Date;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -73,6 +74,14 @@ class HttpServerTest {
 
         HttpClient client = new HttpClient("localhost", 10007, "/notFound.txt");
         assertEquals(404, client.getStatusCode());
+    }
+
+    @Test
+    void shouldPostNewProduct() throws IOException {
+        HttpServer server = new HttpServer(10008);
+        HttpClient client = new HttpClient("localhost", 10008, "/api/newProduct", "POST", "productName=apples&price=10");
+        assertEquals(200, client.getStatusCode());
+        assertEquals(List.of("apples"), server.getProductNames());
     }
 
 }

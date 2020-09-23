@@ -1,15 +1,17 @@
 package no.kristiania.http;
 
-import javax.management.Query;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 public class HttpServer {
 
     private File contentRoot;
+    private List<String> productNames = new ArrayList<>();
 
     public HttpServer(int port) throws IOException {
         // Opens a entry point to our program for network clients
@@ -98,5 +100,9 @@ public class HttpServer {
 
     public void setContentRoot(File contentRoot) {
         this.contentRoot = contentRoot;
+    }
+
+    public List<String> getProductNames() {
+        return productNames;
     }
 }
