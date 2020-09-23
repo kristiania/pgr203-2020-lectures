@@ -25,19 +25,26 @@ public class HttpServer {
         System.out.println(requestLine);
 
         String requestTarget = requestLine.split(" ")[1];
+        int contentLength = 29;
         String statusCode = "200";
 
         int questionPos = requestTarget.indexOf('?');
         if (questionPos != -1) {
-            String queryString = requestTarget.substring(questionPos+1);
+            String queryString = requestTarget.substring(questionPos + 1);
+            QueryString qs = new QueryString(queryString);
             int equalPos = queryString.indexOf('=');
             String parameterName = queryString.substring(0, equalPos);
-            String parameterValue = queryString.substring(equalPos+1);
-            statusCode = parameterValue;
+            String parameterValue = queryString.substring(equalPos + 1);
+            statusCode = qs.getParameter("status");
+            if (statusCode == null)
+                statusCode = "200";
+            if (qs.getParameter("body") != null)
+                contentLength = qs.getParameter("body").length();
         }
 
+
         String response = "HTTP/1.1 " + statusCode + " OK\r\n" +
-                "Content-Length: 29\r\n" +
+                "Content-Length: " + contentLength + "\r\n" +
                 "Content-Type: text/plain\r\n" +
                 "\r\n" +
                 "Hello <strong>World</strong>!";
