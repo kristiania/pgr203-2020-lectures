@@ -30,7 +30,8 @@ public class HttpClient {
 
         // The first line in the response is called status line or response line
         // response line consists of protocol ("HTTP/1.1") status code (200, 404, 401, 500) and status message
-        String[] responseLineParts = readLine(socket).split(" ");
+        String responseLine = readLine(socket);
+        String[] responseLineParts = responseLine.split(" ");
 
         // Status code determines if it went ok (2xx) or not (4xx). (In addition 5xx: server error) 3xx
         statusCode = Integer.parseInt(responseLineParts[1]);
