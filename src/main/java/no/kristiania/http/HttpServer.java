@@ -34,7 +34,7 @@ public class HttpServer {
 
     // This code will be executed for each client
     private void handleRequest(Socket clientSocket) throws IOException {
-        String requestLine = HttpClient.readLine(clientSocket);
+        String requestLine = HttpMessage.readLine(clientSocket);
         System.out.println(requestLine);
         // Example "GET /echo?body=hello HTTP/1.1"
 
