@@ -36,7 +36,7 @@ public class HttpServer {
     private void handleRequest(Socket clientSocket) throws IOException {
         HttpMessage request = new HttpMessage(clientSocket);
         String requestLine = request.getStartLine();
-        System.out.println(requestLine);
+        System.out.println("REQUEST " + requestLine);
         // Example "GET /echo?body=hello HTTP/1.1"
 
         // Example GET, POST, PUT, DELETE etc
@@ -84,6 +84,7 @@ public class HttpServer {
                 }
                 String response = "HTTP/1.1 " + statusCode + " OK\r\n" +
                         "Content-Length: " + file.length() + "\r\n" +
+                        "Connection: close\r\n" +
                         "Content-Type: " + contentType + "\r\n" +
                         "\r\n";
                 // Write the response back to the client
@@ -102,7 +103,8 @@ public class HttpServer {
         body += "</ul>";
         String response = "HTTP/1.1 200 OK\r\n" +
                 "Content-Length: " + body.length() + "\r\n" +
-                "Content-Type: text/plain\r\n" +
+                "Content-Type: text/html\r\n" +
+                "Connection: close\r\n" +
                 "\r\n" +
                 body;
 
