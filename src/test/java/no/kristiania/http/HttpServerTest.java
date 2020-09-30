@@ -84,4 +84,12 @@ class HttpServerTest {
         assertEquals(List.of("apples"), server.getProductNames());
     }
 
+    //@Test
+    void shouldReturnExistingProducts() throws IOException {
+        HttpServer server = new HttpServer(10009);
+        server.getProductNames().add("Coconuts");
+        HttpClient client = new HttpClient("localhost", 10009, "/api/products");
+        assertEquals("<ul><li>Coconuts</li></ul>", client.getResponseBody());
+    }
+
 }

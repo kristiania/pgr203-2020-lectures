@@ -6,5 +6,11 @@
 </head>
 <body>
 Hello World
+<div id="products"></div>
 </body>
+<script>
+    fetch("/api/products").then(response => response.text()).then(html => {
+        document.getElementById("products").innerHTML = html;
+    });
+</script>
 </html>
