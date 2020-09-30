@@ -76,7 +76,7 @@ class HttpServerTest {
         assertEquals(404, client.getStatusCode());
     }
 
-    //@Test
+    @Test
     void shouldPostNewProduct() throws IOException {
         HttpServer server = new HttpServer(10008);
         HttpClient client = new HttpClient("localhost", 10008, "/api/newProduct", "POST", "productName=apples&price=10");

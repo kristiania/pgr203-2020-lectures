@@ -39,6 +39,9 @@ public class HttpServer {
         System.out.println(requestLine);
         // Example "GET /echo?body=hello HTTP/1.1"
 
+        // Example GET, POST, PUT, DELETE etc
+        String requestMethod = requestLine.split(" ")[0];
+
         String requestTarget = requestLine.split(" ")[1];
         // Example "/echo?body=hello"
         String statusCode = "200";
@@ -50,13 +53,26 @@ public class HttpServer {
 
         if (questionPos != -1) {
             // body=hello
-            QueryString queryString = new QueryString(requestTarget.substring(questionPos+1));
+            QueryString queryString = new QueryString(requestTarget.substring(questionPos + 1));
             if (queryString.getParameter("status") != null) {
                 statusCode = queryString.getParameter("status");
             }
             if (queryString.getParameter("body") != null) {
                 body = queryString.getParameter("body");
             }
+        } else if (requestMethod.equals("POST")) {
+            QueryString requestParameter = new QueryString(request.getBody());
+
+            productNames.add(requestParameter.getParameter("productName"));
+            body = "Okay";
+            String response = "HTTP/1.1 200 OK\r\n" +
+                    "Content-Length: " + body.length() + "\r\n" +
+                    "\r\n" +
+                    body;
+            // Write the response back to the client
+            clientSocket.getOutputStream().write(response.getBytes());
+
+            return;
         } else if (!requestPath.equals("/echo")) {
             File file = new File(contentRoot, requestPath);
             if (!file.exists()) {
