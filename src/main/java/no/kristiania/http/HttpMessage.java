@@ -17,8 +17,12 @@ public class HttpMessage {
         headers = readHeaders(socket);
 
         // Response header content-length tells who many bytes the response body is
-        int contentLength = Integer.parseInt(headers.get("Content-Length"));
-        body = HttpMessage.readBody(socket, contentLength);
+        String contentLength = headers.get("Content-Length");
+        if (contentLength != null) {
+            body = HttpMessage.readBody(socket, Integer.parseInt(contentLength));
+        } else {
+            body = null;
+        }
     }
 
     public static String readLine(Socket socket) throws IOException {
