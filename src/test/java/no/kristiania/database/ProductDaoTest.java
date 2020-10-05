@@ -11,18 +11,33 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class ProductDaoTest {
 
+    private ProductDao productDao = new ProductDao(createTestDataSource());
+
     @Test
     void shouldListInsertedProducts() throws SQLException {
-        JdbcDataSource dataSource = new JdbcDataSource();
-        dataSource.setUrl("jdbc:h2:mem:testdatabase;DB_CLOSE_DELAY=-1");
-        Flyway.configure().dataSource(dataSource).load().migrate();
-
-        ProductDao productDao = new ProductDao(dataSource);
         Product product = exampleProduct();
         productDao.insert(product);
         assertThat(productDao.list())
                 .extracting(Product::getName)
                 .contains(product.getName());
+    }
+
+    @Test
+    void shouldRetrieveInsertedProduct() throws SQLException {
+        Product product = exampleProduct();
+        productDao.insert(product);
+        assertThat(product).hasNoNullFieldsOrProperties();
+        assertThat(productDao.retrieve(product.getId()))
+                .usingRecursiveComparison()
+                .isEqualTo(product);
+    }
+
+
+    private JdbcDataSource createTestDataSource() {
+        JdbcDataSource dataSource = new JdbcDataSource();
+        dataSource.setUrl("jdbc:h2:mem:testdatabase;DB_CLOSE_DELAY=-1");
+        Flyway.configure().dataSource(dataSource).load().migrate();
+        return dataSource;
     }
 
     private Product exampleProduct() {

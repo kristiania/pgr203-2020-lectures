@@ -63,4 +63,8 @@ public class ProductDao {
         }
         return products;
     }
+
+    public Product retrieve(Long id) {
+        return null;
+    }
 }
