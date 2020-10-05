@@ -59,7 +59,17 @@ public class ProductDao {
         products.add(product);
     }
 
-    public List<String> list() {
+    public List<String> list() throws SQLException {
+        List<String> products = new ArrayList<>();
+        try (Connection connection = dataSource.getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement("select * from products")) {
+                try (ResultSet rs = statement.executeQuery()) {
+                    while (rs.next()) {
+                        products.add(rs.getString("product_name"));
+                    }
+                }
+            }
+        }
         return products;
     }
 }
