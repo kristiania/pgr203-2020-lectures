@@ -13,7 +13,6 @@ import java.util.Scanner;
 
 public class ProductDao {
 
-    private ArrayList<String> products = new ArrayList<>();
     private DataSource dataSource;
 
     public ProductDao(DataSource dataSource) {
@@ -26,26 +25,15 @@ public class ProductDao {
         dataSource.setUser("kristianiashop");
         dataSource.setPassword("nice try!");
 
+        ProductDao productDao = new ProductDao(dataSource);
+
         System.out.println("Please enter product name:");
         Scanner scanner = new Scanner(System.in);
         String productName = scanner.nextLine();
 
-        try (Connection connection = dataSource.getConnection()) {
-            try (PreparedStatement statement = connection.prepareStatement("INSERT INTO products (product_name) VALUES (?)")) {
-                statement.setString(1, productName);
-                statement.executeUpdate();
-            }
-        }
-
-
-        try (Connection connection = dataSource.getConnection()) {
-            try (PreparedStatement statement = connection.prepareStatement("select * from products")) {
-                try (ResultSet rs = statement.executeQuery()) {
-                    while (rs.next()) {
-                        System.out.println(rs.getString("product_name"));
-                    }
-                }
-            }
+        productDao.insert(productName);
+        for (String product : productDao.list()) {
+            System.out.println(product);
         }
     }
 
@@ -56,7 +44,6 @@ public class ProductDao {
                 statement.executeUpdate();
             }
         }
-        products.add(product);
     }
 
     public List<String> list() throws SQLException {
