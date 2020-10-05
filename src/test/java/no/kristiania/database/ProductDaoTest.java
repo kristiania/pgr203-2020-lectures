@@ -18,13 +18,21 @@ class ProductDaoTest {
         Flyway.configure().dataSource(dataSource).load().migrate();
 
         ProductDao productDao = new ProductDao(dataSource);
-        String product = exampleProduct();
+        Product product = exampleProduct();
         productDao.insert(product);
-        assertThat(productDao.list()).contains(product);
+        assertThat(productDao.list())
+                .extracting(Product::getName)
+                .contains(product.getName());
+    }
+
+    private Product exampleProduct() {
+        Product product = new Product();
+        product.setName(exampleProductName());
+        return product;
     }
 
     /** Returns a random product name */
-    private String exampleProduct() {
+    private String exampleProductName() {
         String[] options = {"Apples", "Bananas", "Coconuts", "Dates", "Eggplant"};
         Random random = new Random();
         return options[random.nextInt(options.length)];
