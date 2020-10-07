@@ -39,10 +39,10 @@ public class ProductDao {
                     while (rs.next()) {
                         products.add(rs.getString("product_name"));
                     }
+                    return products;
                 }
             }
         }
-        return this.products;
     }
 
     public static void main(String[] args) throws SQLException {
