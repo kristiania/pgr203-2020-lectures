@@ -1,19 +1,24 @@
 package no.kristiania.http;
 
+import no.kristiania.database.ProductDao;
+import org.postgresql.ds.PGSimpleDataSource;
+
+import javax.sql.DataSource;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
+import java.sql.SQLException;
 import java.util.List;
 
 public class HttpServer {
 
     private File contentRoot;
-    private List<String> productNames = new ArrayList<>();
+    private ProductDao productDao;
 
-    public HttpServer(int port) throws IOException {
+    public HttpServer(int port, DataSource dataSource) throws IOException {
+        productDao = new ProductDao(dataSource);
         // Opens a entry point to our program for network clients
         ServerSocket serverSocket = new ServerSocket(port);
 
@@ -24,7 +29,7 @@ public class HttpServer {
                     // accept waits for a client to try to connect - blocks
                     Socket clientSocket = serverSocket.accept();
                     handleRequest(clientSocket);
-                } catch (IOException e) {
+                } catch (IOException | SQLException e) {
                     // If something went wrong - print out exception and try again
                     e.printStackTrace();
                 }
@@ -33,7 +38,7 @@ public class HttpServer {
     }
 
     // This code will be executed for each client
-    private void handleRequest(Socket clientSocket) throws IOException {
+    private void handleRequest(Socket clientSocket) throws IOException, SQLException {
         HttpMessage request = new HttpMessage(clientSocket);
         String requestLine = request.getStartLine();
         System.out.println("REQUEST " + requestLine);
@@ -52,7 +57,7 @@ public class HttpServer {
         if (requestMethod.equals("POST")) {
             QueryString requestParameter = new QueryString(request.getBody());
 
-            productNames.add(requestParameter.getParameter("productName"));
+            productDao.insert(requestParameter.getParameter("productName"));
             String body = "Okay";
             String response = "HTTP/1.1 200 OK\r\n" +
                     "Content-Length: " + body.length() + "\r\n" +
@@ -95,9 +100,9 @@ public class HttpServer {
         }
     }
 
-    private void handleGetProducts(Socket clientSocket) throws IOException {
+    private void handleGetProducts(Socket clientSocket) throws IOException, SQLException {
         String body = "<ul>";
-        for (String productName : productNames) {
+        for (String productName : productDao.list()) {
             body += "<li>" + productName + "</li>";
         }
         body += "</ul>";
@@ -136,7 +141,13 @@ public class HttpServer {
     }
 
     public static void main(String[] args) throws IOException {
-        HttpServer server = new HttpServer(8080);
+        PGSimpleDataSource dataSource = new PGSimpleDataSource();
+        dataSource.setUrl("jdbc:postgresql://localhost:5432/kristianiashop");
+        dataSource.setUser("kristianiashopuser");
+        // TODO: database passwords should never be checked in!
+        dataSource.setPassword("5HGQ[f_t2D}^?");
+
+        HttpServer server = new HttpServer(8080, dataSource);
         server.setContentRoot(new File("src/main/resources"));
     }
 
@@ -144,7 +155,7 @@ public class HttpServer {
         this.contentRoot = contentRoot;
     }
 
-    public List<String> getProductNames() {
-        return productNames;
+    public List<String> getProductNames() throws SQLException {
+        return productDao.list();
     }
 }
