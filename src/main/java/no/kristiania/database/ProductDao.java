@@ -31,8 +31,18 @@ public class ProductDao {
         products.add(product);
     }
 
-    public List<String> list() {
-        return products;
+    public List<String> list() throws SQLException {
+        try (Connection connection = dataSource.getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM products")) {
+                try (ResultSet rs = statement.executeQuery()) {
+                    List<String> products = new ArrayList<>();
+                    while (rs.next()) {
+                        products.add(rs.getString("product_name"));
+                    }
+                }
+            }
+        }
+        return this.products;
     }
 
     public static void main(String[] args) throws SQLException {
