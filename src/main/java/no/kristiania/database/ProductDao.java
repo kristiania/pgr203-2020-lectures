@@ -52,25 +52,13 @@ public class ProductDao {
         // TODO: database passwords should never be checked in!
         dataSource.setPassword("5HGQ[f_t2D}^?");
 
+        ProductDao productDao = new ProductDao(dataSource);
+
         System.out.println("What's the name of the new product");
         Scanner scanner = new Scanner(System.in);
         String productName = scanner.nextLine();
 
-        try (Connection connection = dataSource.getConnection()) {
-            try (PreparedStatement statement = connection.prepareStatement("INSERT INTO products (product_name) values (?)")) {
-                statement.setString(1, productName);
-                statement.executeUpdate();
-            }
-        }
-
-        try (Connection connection = dataSource.getConnection()) {
-            try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM products")) {
-                try (ResultSet rs = statement.executeQuery()) {
-                    while (rs.next()) {
-                        System.out.println(rs.getString("product_name"));
-                    }
-                }
-            }
-        }
+        productDao.insert(productName);
+        System.out.println(productDao.list());
     }
 }
