@@ -7,6 +7,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Scanner;
 
 public class ProductDao {
 
@@ -16,6 +17,17 @@ public class ProductDao {
         dataSource.setUser("kristianiashopuser");
         // TODO: database passwords should never be checked in!
         dataSource.setPassword("5HGQ[f_t2D}^?");
+
+        System.out.println("What's the name of the new product");
+        Scanner scanner = new Scanner(System.in);
+        String productName = scanner.nextLine();
+
+        try (Connection connection = dataSource.getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement("INSERT INTO products (product_name) values (?)")) {
+                statement.setString(1, productName);
+                statement.executeUpdate();
+            }
+        }
 
         try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM products")) {
