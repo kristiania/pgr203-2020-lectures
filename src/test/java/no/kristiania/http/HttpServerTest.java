@@ -92,7 +92,9 @@ class HttpServerTest {
         HttpServer server = new HttpServer(10008, dataSource);
         HttpClient client = new HttpClient("localhost", 10008, "/api/newProduct", "POST", "productName=apples&price=10");
         assertEquals(200, client.getStatusCode());
-        assertThat(server.getProductNames()).contains("apples");
+        assertThat(server.getProductNames())
+                .extracting(product -> product.getName())
+                .contains("apples");
     }
 
     @Test
@@ -101,9 +103,10 @@ class HttpServerTest {
         ProductDao productDao = new ProductDao(dataSource);
         Product product = new Product();
         product.setName("Coconuts");
+        product.setPrice(20);
         productDao.insert(product);
         HttpClient client = new HttpClient("localhost", 10009, "/api/products");
-        assertThat(client.getResponseBody()).contains("<li>Coconuts</li>");
+        assertThat(client.getResponseBody()).contains("<li>Coconuts (kr 20.0)</li>");
     }
 
 }

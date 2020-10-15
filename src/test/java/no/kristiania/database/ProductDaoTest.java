@@ -30,6 +30,7 @@ class ProductDaoTest {
         productDao.insert(product1);
         productDao.insert(product2);
         assertThat(productDao.list())
+                .extracting(Product::getName)
                 .contains(product1.getName(), product2.getName());
     }
 

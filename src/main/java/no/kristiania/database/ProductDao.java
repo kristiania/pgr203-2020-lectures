@@ -45,11 +45,7 @@ public class ProductDao {
                 statement.setLong(1, id);
                 try (ResultSet rs = statement.executeQuery()) {
                     if (rs.next()) {
-                        Product product = new Product();
-                        product.setId(rs.getLong("id"));
-                        product.setName(rs.getString("product_name"));
-                        product.setPrice(rs.getDouble("price"));
-                        return product;
+                        return mapRowToProduct(rs);
                     } else {
                         return null;
                     }
@@ -58,13 +54,21 @@ public class ProductDao {
         }
     }
 
-    public List<String> list() throws SQLException {
+    private Product mapRowToProduct(ResultSet rs) throws SQLException {
+        Product product = new Product();
+        product.setId(rs.getLong("id"));
+        product.setName(rs.getString("product_name"));
+        product.setPrice(rs.getDouble("price"));
+        return product;
+    }
+
+    public List<Product> list() throws SQLException {
         try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM products")) {
                 try (ResultSet rs = statement.executeQuery()) {
-                    List<String> products = new ArrayList<>();
+                    List<Product> products = new ArrayList<>();
                     while (rs.next()) {
-                        products.add(rs.getString("product_name"));
+                        products.add(mapRowToProduct(rs));
                     }
                     return products;
                 }

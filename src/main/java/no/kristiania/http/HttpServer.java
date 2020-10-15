@@ -118,8 +118,8 @@ public class HttpServer {
 
     private void handleGetProducts(Socket clientSocket) throws IOException, SQLException {
         String body = "<ul>";
-        for (String productName : productDao.list()) {
-            body += "<li>" + productName + "</li>";
+        for (Product product : productDao.list()) {
+            body += "<li>" + product.getName() + " (kr " + product.getPrice() + ")</li>";
         }
         body += "</ul>";
         String response = "HTTP/1.1 200 OK\r\n" +
@@ -174,7 +174,7 @@ public class HttpServer {
         logger.info("Started on http://localhost:{}/index.html", 8080);
     }
 
-    public List<String> getProductNames() throws SQLException {
+    public List<Product> getProductNames() throws SQLException {
         return productDao.list();
     }
 }
