@@ -31,9 +31,8 @@ public class HttpServer {
         // new Threads executes the code in a separate "thread", that is: In parallel
         new Thread(() -> { // anonymous function with code that will be executed in parallel
             while (true) {
-                try {
+                try (Socket clientSocket = serverSocket.accept()) {
                     // accept waits for a client to try to connect - blocks
-                    Socket clientSocket = serverSocket.accept();
                     handleRequest(clientSocket);
                 } catch (IOException | SQLException e) {
                     // If something went wrong - print out exception and try again
@@ -66,6 +65,7 @@ public class HttpServer {
             productDao.insert(requestParameter.getParameter("productName"));
             String body = "Okay";
             String response = "HTTP/1.1 200 OK\r\n" +
+                    "Connection: close\r\n" +
                     "Content-Length: " + body.length() + "\r\n" +
                     "\r\n" +
                     body;
@@ -88,6 +88,7 @@ public class HttpServer {
                 String body = requestPath + " does not exist";
                 String response = "HTTP/1.1 404 Not Found\r\n" +
                         "Content-Length: " + body.length() + "\r\n" +
+                        "Connection: close\r\n" +
                         "\r\n" +
                         body;
                 // Write the response back to the client
@@ -145,6 +146,7 @@ public class HttpServer {
         String response = "HTTP/1.1 " + statusCode + " OK\r\n" +
                 "Content-Length: " + body.length() + "\r\n" +
                 "Content-Type: text/plain\r\n" +
+                "Connection: close\r\n" +
                 "\r\n" +
                 body;
 
