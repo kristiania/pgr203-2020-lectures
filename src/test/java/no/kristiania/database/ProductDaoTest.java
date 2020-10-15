@@ -13,6 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ProductDaoTest {
 
     private ProductDao productDao;
+    private Random random = new Random();
 
     @BeforeEach
     void setUp() {
@@ -47,12 +48,12 @@ class ProductDaoTest {
     private Product exampleProduct() {
         Product product = new Product();
         product.setName(exampleProductName());
+        product.setPrice(10.50 + random.nextInt(20));
         return product;
     }
 
     private String exampleProductName() {
         String[] options = {"Apples", "Bananas", "Coconuts", "Dates"};
-        Random random = new Random();
         return options[random.nextInt(options.length)];
     }
 }

@@ -2,7 +2,7 @@ package no.kristiania.database;
 
 public class Product {
     private String name;
-    private Double price;
+    private double price;
     private Long id;
 
     public String getName() {
@@ -21,11 +21,11 @@ public class Product {
         this.id = id;
     }
 
-    public Double getPrice() {
+    public double getPrice() {
         return price;
     }
 
-    public void setPrice(Double price) {
+    public void setPrice(double price) {
         this.price = price;
     }
 }
