@@ -2,6 +2,7 @@ package no.kristiania.database;
 
 public class Product {
     private String name;
+    private Double price;
     private Long id;
 
     public String getName() {
@@ -18,5 +19,13 @@ public class Product {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Double getPrice() {
+        return price;
+    }
+
+    public void setPrice(Double price) {
+        this.price = price;
     }
 }
