@@ -33,13 +33,16 @@ class ProductDaoTest {
     void shouldRetrieveAllProductProperties() throws SQLException {
         Product product = exampleProduct();
         productDao.insert(product);
+        assertThat(product).hasNoNullFieldsOrProperties();
         assertThat(productDao.retrieve(product.getId()))
                 .usingRecursiveComparison()
                 .isEqualTo(product);
     }
 
     private Product exampleProduct() {
-        return new Product();
+        Product product = new Product();
+        product.setName(exampleProductName());
+        return product;
     }
 
     private String exampleProductName() {

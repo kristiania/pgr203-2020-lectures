@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -22,15 +23,36 @@ public class ProductDao {
 
     public void insert(Product product) throws SQLException {
         try (Connection connection = dataSource.getConnection()) {
-            try (PreparedStatement statement = connection.prepareStatement("INSERT INTO products (product_name) values (?)")) {
+            try (PreparedStatement statement = connection.prepareStatement(
+                    "INSERT INTO products (product_name) values (?)",
+                    Statement.RETURN_GENERATED_KEYS
+            )) {
                 statement.setString(1, product.getName());
                 statement.executeUpdate();
+
+                try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+                    generatedKeys.next();
+                    product.setId(generatedKeys.getLong("id"));
+                }
             }
         }
     }
 
-    public Product retrieve(Long id) {
-        return new Product();
+    public Product retrieve(Long id) throws SQLException {
+        try (Connection connection = dataSource.getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM products")) {
+                try (ResultSet rs = statement.executeQuery()) {
+                    if (rs.next()) {
+                        Product product = new Product();
+                        product.setId(rs.getLong("id"));
+                        product.setName(rs.getString("product_name"));
+                        return product;
+                    } else {
+                        return null;
+                    }
+                }
+            }
+        }
     }
 
     public List<String> list() throws SQLException {
