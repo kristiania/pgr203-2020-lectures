@@ -1,20 +1,27 @@
 package no.kristiania.http;
 
+import no.kristiania.database.Product;
 import no.kristiania.database.ProductDao;
+import org.flywaydb.core.Flyway;
 import org.postgresql.ds.PGSimpleDataSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Properties;
 
 public class HttpServer {
 
-    private File contentRoot;
+    private static final Logger logger = LoggerFactory.getLogger(HttpServer.class);
+
     private ProductDao productDao;
 
     public HttpServer(int port, DataSource dataSource) throws IOException {
@@ -25,9 +32,8 @@ public class HttpServer {
         // new Threads executes the code in a separate "thread", that is: In parallel
         new Thread(() -> { // anonymous function with code that will be executed in parallel
             while (true) {
-                try {
+                try (Socket clientSocket = serverSocket.accept()) {
                     // accept waits for a client to try to connect - blocks
-                    Socket clientSocket = serverSocket.accept();
                     handleRequest(clientSocket);
                 } catch (IOException | SQLException e) {
                     // If something went wrong - print out exception and try again
@@ -57,9 +63,12 @@ public class HttpServer {
         if (requestMethod.equals("POST")) {
             QueryString requestParameter = new QueryString(request.getBody());
 
-            productDao.insert(requestParameter.getParameter("productName"));
+            Product product = new Product();
+            product.setName(requestParameter.getParameter("productName"));
+            productDao.insert(product);
             String body = "Okay";
             String response = "HTTP/1.1 200 OK\r\n" +
+                    "Connection: close\r\n" +
                     "Content-Length: " + body.length() + "\r\n" +
                     "\r\n" +
                     body;
@@ -71,39 +80,46 @@ public class HttpServer {
             } else if (requestPath.equals("/api/products")) {
                 handleGetProducts(clientSocket);
             } else {
-                File file = new File(contentRoot, requestPath);
-                if (!file.exists()) {
-                    String body = file + " does not exist";
-                    String response = "HTTP/1.1 404 Not Found\r\n" +
-                            "Content-Length: " + body.length() + "\r\n" +
-                            "\r\n" +
-                            body;
-                    // Write the response back to the client
-                    clientSocket.getOutputStream().write(response.getBytes());
-                    return;
-                }
-                String statusCode = "200";
-                String contentType = "text/plain";
-                if (file.getName().endsWith(".html")) {
-                    contentType = "text/html";
-                }
-                String response = "HTTP/1.1 " + statusCode + " OK\r\n" +
-                        "Content-Length: " + file.length() + "\r\n" +
+                handleFileRequest(clientSocket, requestPath);
+            }
+        }
+    }
+
+    private void handleFileRequest(Socket clientSocket, String requestPath) throws IOException {
+        try (InputStream inputStream = getClass().getResourceAsStream(requestPath)) {
+            if (inputStream == null) {
+                String body = requestPath + " does not exist";
+                String response = "HTTP/1.1 404 Not Found\r\n" +
+                        "Content-Length: " + body.length() + "\r\n" +
                         "Connection: close\r\n" +
-                        "Content-Type: " + contentType + "\r\n" +
-                        "\r\n";
+                        "\r\n" +
+                        body;
                 // Write the response back to the client
                 clientSocket.getOutputStream().write(response.getBytes());
-
-                new FileInputStream(file).transferTo(clientSocket.getOutputStream());
+                return;
             }
+            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+            inputStream.transferTo(buffer);
+
+            String contentType = "text/plain";
+            if (requestPath.endsWith(".html")) {
+                contentType = "text/html";
+            }
+
+            String response = "HTTP/1.1 200 OK\r\n" +
+                    "Content-Length: " + buffer.toByteArray().length + "\r\n" +
+                    "Connection: close\r\n" +
+                    "Content-Type: " + contentType + "\r\n" +
+                    "\r\n";
+            clientSocket.getOutputStream().write(response.getBytes());
+            clientSocket.getOutputStream().write(buffer.toByteArray());
         }
     }
 
     private void handleGetProducts(Socket clientSocket) throws IOException, SQLException {
         String body = "<ul>";
-        for (String productName : productDao.list()) {
-            body += "<li>" + productName + "</li>";
+        for (Product product : productDao.list()) {
+            body += "<li>" + product.getName() + " (kr " + product.getPrice() + ")</li>";
         }
         body += "</ul>";
         String response = "HTTP/1.1 200 OK\r\n" +
@@ -133,6 +149,7 @@ public class HttpServer {
         String response = "HTTP/1.1 " + statusCode + " OK\r\n" +
                 "Content-Length: " + body.length() + "\r\n" +
                 "Content-Type: text/plain\r\n" +
+                "Connection: close\r\n" +
                 "\r\n" +
                 body;
 
@@ -141,21 +158,23 @@ public class HttpServer {
     }
 
     public static void main(String[] args) throws IOException {
+        Properties properties = new Properties();
+        try (FileReader fileReader = new FileReader("pgr203.properties")) {
+            properties.load(fileReader);
+        }
+
         PGSimpleDataSource dataSource = new PGSimpleDataSource();
-        dataSource.setUrl("jdbc:postgresql://localhost:5432/kristianiashop");
-        dataSource.setUser("kristianiashopuser");
-        // TODO: database passwords should never be checked in!
-        dataSource.setPassword("5HGQ[f_t2D}^?");
+        dataSource.setUrl(properties.getProperty("dataSource.url"));
+        dataSource.setUser(properties.getProperty("dataSource.username"));
+        dataSource.setPassword(properties.getProperty("dataSource.password"));
+        logger.info("Using database {}", dataSource.getUrl());
+        Flyway.configure().dataSource(dataSource).load().migrate();
 
         HttpServer server = new HttpServer(8080, dataSource);
-        server.setContentRoot(new File("src/main/resources"));
+        logger.info("Started on http://localhost:{}/index.html", 8080);
     }
 
-    public void setContentRoot(File contentRoot) {
-        this.contentRoot = contentRoot;
-    }
-
-    public List<String> getProductNames() throws SQLException {
+    public List<Product> getProductNames() throws SQLException {
         return productDao.list();
     }
 }

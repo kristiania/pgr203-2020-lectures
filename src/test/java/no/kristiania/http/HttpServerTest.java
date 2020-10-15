@@ -1,5 +1,6 @@
 package no.kristiania.http;
 
+import no.kristiania.database.Product;
 import no.kristiania.database.ProductDao;
 import org.flywaydb.core.Flyway;
 import org.h2.jdbcx.JdbcDataSource;
@@ -58,8 +59,7 @@ class HttpServerTest {
     @Test
     void shouldReturnFileFromDisk() throws IOException {
         HttpServer server = new HttpServer(10005, dataSource);
-        File contentRoot = new File("target/");
-        server.setContentRoot(contentRoot);
+        File contentRoot = new File("target/test-classes");
 
         String fileContent = "Hello World " + new Date();
         Files.writeString(new File(contentRoot, "test.txt").toPath(), fileContent);
@@ -72,8 +72,7 @@ class HttpServerTest {
     @Test
     void shouldReturnCorrectContentType() throws IOException {
         HttpServer server = new HttpServer(10006, dataSource);
-        File contentRoot = new File("target/");
-        server.setContentRoot(contentRoot);
+        File contentRoot = new File("target/test-classes");
 
         Files.writeString(new File(contentRoot, "index.html").toPath(), "<h2>Hello World</h2>");
 
@@ -84,9 +83,6 @@ class HttpServerTest {
     @Test
     void shouldReturn404IfFileNotFound() throws IOException {
         HttpServer server = new HttpServer(10007, dataSource);
-        File contentRoot = new File("target/");
-        server.setContentRoot(contentRoot);
-
         HttpClient client = new HttpClient("localhost", 10007, "/notFound.txt");
         assertEquals(404, client.getStatusCode());
     }
@@ -96,16 +92,21 @@ class HttpServerTest {
         HttpServer server = new HttpServer(10008, dataSource);
         HttpClient client = new HttpClient("localhost", 10008, "/api/newProduct", "POST", "productName=apples&price=10");
         assertEquals(200, client.getStatusCode());
-        assertThat(server.getProductNames()).contains("apples");
+        assertThat(server.getProductNames())
+                .extracting(product -> product.getName())
+                .contains("apples");
     }
 
     @Test
     void shouldReturnExistingProducts() throws IOException, SQLException {
         HttpServer server = new HttpServer(10009, dataSource);
         ProductDao productDao = new ProductDao(dataSource);
-        productDao.insert("Coconuts");
+        Product product = new Product();
+        product.setName("Coconuts");
+        product.setPrice(20);
+        productDao.insert(product);
         HttpClient client = new HttpClient("localhost", 10009, "/api/products");
-        assertEquals("<ul><li>Coconuts</li></ul>", client.getResponseBody());
+        assertThat(client.getResponseBody()).contains("<li>Coconuts (kr 20.0)</li>");
     }
 
 }
