@@ -1,5 +1,6 @@
 package no.kristiania.http;
 
+import no.kristiania.database.Product;
 import no.kristiania.database.ProductDao;
 import org.flywaydb.core.Flyway;
 import org.postgresql.ds.PGSimpleDataSource;
@@ -62,7 +63,9 @@ public class HttpServer {
         if (requestMethod.equals("POST")) {
             QueryString requestParameter = new QueryString(request.getBody());
 
-            productDao.insert(requestParameter.getParameter("productName"));
+            Product product = new Product();
+            product.setName(requestParameter.getParameter("productName"));
+            productDao.insert(product);
             String body = "Okay";
             String response = "HTTP/1.1 200 OK\r\n" +
                     "Connection: close\r\n" +

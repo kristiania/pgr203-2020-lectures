@@ -2,6 +2,7 @@ package no.kristiania.database;
 
 import org.flywaydb.core.Flyway;
 import org.h2.jdbcx.JdbcDataSource;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
@@ -11,17 +12,33 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class ProductDaoTest {
 
-    @Test
-    void shouldListInsertedProducts() throws SQLException {
+    private ProductDao productDao;
+
+    @BeforeEach
+    void setUp() {
         JdbcDataSource dataSource = new JdbcDataSource();
         dataSource.setUrl("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1");
-
         Flyway.configure().dataSource(dataSource).load().migrate();
+        productDao = new ProductDao(dataSource);
+    }
 
-        ProductDao productDao = new ProductDao(dataSource);
-        String product = exampleProductName();
+    @Test
+    void shouldListInsertedProducts() throws SQLException {
+        Product product = exampleProduct();
         productDao.insert(product);
-        assertThat(productDao.list()).contains(product);
+        assertThat(productDao.list()).contains(product.getName());
+    }
+
+    @Test
+    void shouldRetrieveAllProductProperties() throws SQLException {
+        Product product = exampleProduct();
+        productDao.insert(product);
+        assertThat(productDao.retrieve(product.getId()))
+                .isEqualTo(product);
+    }
+
+    private Product exampleProduct() {
+        return new Product();
     }
 
     private String exampleProductName() {

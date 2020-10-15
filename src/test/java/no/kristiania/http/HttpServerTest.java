@@ -1,5 +1,6 @@
 package no.kristiania.http;
 
+import no.kristiania.database.Product;
 import no.kristiania.database.ProductDao;
 import org.flywaydb.core.Flyway;
 import org.h2.jdbcx.JdbcDataSource;
@@ -98,7 +99,9 @@ class HttpServerTest {
     void shouldReturnExistingProducts() throws IOException, SQLException {
         HttpServer server = new HttpServer(10009, dataSource);
         ProductDao productDao = new ProductDao(dataSource);
-        productDao.insert("Coconuts");
+        Product product = new Product();
+        product.setName("Coconuts");
+        productDao.insert(product);
         HttpClient client = new HttpClient("localhost", 10009, "/api/products");
         assertThat(client.getResponseBody()).contains("<li>Coconuts</li>");
     }

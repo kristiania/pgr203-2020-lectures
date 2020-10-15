@@ -20,13 +20,17 @@ public class ProductDao {
         this.dataSource = dataSource;
     }
 
-    public void insert(String product) throws SQLException {
+    public void insert(Product product) throws SQLException {
         try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement("INSERT INTO products (product_name) values (?)")) {
-                statement.setString(1, product);
+                statement.setString(1, product.getName());
                 statement.executeUpdate();
             }
         }
+    }
+
+    public Product retrieve(Long id) {
+        return null;
     }
 
     public List<String> list() throws SQLException {
@@ -54,9 +58,12 @@ public class ProductDao {
 
         System.out.println("What's the name of the new product");
         Scanner scanner = new Scanner(System.in);
-        String productName = scanner.nextLine();
 
-        productDao.insert(productName);
+        Product product = new Product();
+        product.setName(scanner.nextLine());
+
+        productDao.insert(product);
         System.out.println(productDao.list());
     }
+
 }
