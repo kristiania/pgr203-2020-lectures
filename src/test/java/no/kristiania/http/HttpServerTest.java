@@ -105,7 +105,7 @@ class HttpServerTest {
         ProductDao productDao = new ProductDao(dataSource);
         productDao.insert("Coconuts");
         HttpClient client = new HttpClient("localhost", 10009, "/api/products");
-        assertEquals("<ul><li>Coconuts</li></ul>", client.getResponseBody());
+        assertThat(client.getResponseBody()).contains("<li>Coconuts</li>");
     }
 
 }
