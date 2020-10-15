@@ -40,7 +40,8 @@ public class ProductDao {
 
     public Product retrieve(Long id) throws SQLException {
         try (Connection connection = dataSource.getConnection()) {
-            try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM products")) {
+            try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM products WHERE id = ?")) {
+                statement.setLong(1, id);
                 try (ResultSet rs = statement.executeQuery()) {
                     if (rs.next()) {
                         Product product = new Product();
