@@ -24,13 +24,18 @@ class ProductDaoTest {
 
     @Test
     void shouldListInsertedProducts() throws SQLException {
-        Product product = exampleProduct();
-        productDao.insert(product);
-        assertThat(productDao.list()).contains(product.getName());
+        Product product1 = exampleProduct();
+        Product product2 = exampleProduct();
+        productDao.insert(product1);
+        productDao.insert(product2);
+        assertThat(productDao.list())
+                .contains(product1.getName(), product2.getName());
     }
 
     @Test
     void shouldRetrieveAllProductProperties() throws SQLException {
+        productDao.insert(exampleProduct());
+        productDao.insert(exampleProduct());
         Product product = exampleProduct();
         productDao.insert(product);
         assertThat(product).hasNoNullFieldsOrProperties();
