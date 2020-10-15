@@ -34,6 +34,7 @@ class ProductDaoTest {
         Product product = exampleProduct();
         productDao.insert(product);
         assertThat(productDao.retrieve(product.getId()))
+                .usingRecursiveComparison()
                 .isEqualTo(product);
     }
 

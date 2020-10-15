@@ -30,7 +30,7 @@ public class ProductDao {
     }
 
     public Product retrieve(Long id) {
-        return null;
+        return new Product();
     }
 
     public List<String> list() throws SQLException {
