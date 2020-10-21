@@ -16,11 +16,17 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 public class HttpServer {
 
     private static final Logger logger = LoggerFactory.getLogger(HttpServer.class);
+
+    private Map<String, ControllerMcControllerface> controllers = Map.of(
+            "/api/newCategory", new ProductCategoryPostController(),
+            "/api/categories", new ProductCategoryGetController()
+    );
 
     private ProductDao productDao;
 
@@ -61,29 +67,46 @@ public class HttpServer {
         String requestPath = questionPos != -1 ? requestTarget.substring(0, questionPos) : requestTarget;
 
         if (requestMethod.equals("POST")) {
-            QueryString requestParameter = new QueryString(request.getBody());
-
-            Product product = new Product();
-            product.setName(requestParameter.getParameter("productName"));
-            product.setPrice(Double.parseDouble(requestParameter.getParameter("price")));
-            productDao.insert(product);
-            String body = "Okay";
-            String response = "HTTP/1.1 200 OK\r\n" +
-                    "Connection: close\r\n" +
-                    "Content-Length: " + body.length() + "\r\n" +
-                    "\r\n" +
-                    body;
-            // Write the response back to the client
-            clientSocket.getOutputStream().write(response.getBytes());
+            if (requestPath.equals("/api/newProduct")) {
+                handlePostProduct(clientSocket, request);
+            } else {
+                getController(requestPath).handle(request, clientSocket);
+            }
         } else {
             if (requestPath.equals("/echo")) {
                 handleEchoRequest(clientSocket, requestTarget, questionPos);
             } else if (requestPath.equals("/api/products")) {
                 handleGetProducts(clientSocket);
             } else {
-                handleFileRequest(clientSocket, requestPath);
+                ControllerMcControllerface controller = controllers.get(requestPath);
+                if (controller != null) {
+                    controller.handle(request, clientSocket);
+                } else {
+                    handleFileRequest(clientSocket, requestPath);
+                }
             }
         }
+    }
+
+    private ControllerMcControllerface getController(String requestPath) {
+        return controllers.get(requestPath);
+    }
+
+    private void handlePostProduct(Socket clientSocket, HttpMessage request) throws SQLException, IOException {
+        QueryString requestParameter = new QueryString(request.getBody());
+
+        Product product = new Product();
+        product.setName(requestParameter.getParameter("productName"));
+        product.setPrice(Double.parseDouble(requestParameter.getParameter("price")));
+        productDao.insert(product);
+        String body = "Okay";
+        String response = "HTTP/1.1 200 OK\r\n" +
+                "Connection: close\r\n" +
+                "Content-Length: " + body.length() + "\r\n" +
+                "\r\n" +
+                body;
+        // Write the response back to the client
+        clientSocket.getOutputStream().write(response.getBytes());
     }
 
     private void handleFileRequest(Socket clientSocket, String requestPath) throws IOException {

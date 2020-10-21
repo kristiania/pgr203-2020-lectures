@@ -111,4 +111,16 @@ class HttpServerTest {
         assertThat(client.getResponseBody()).contains("<li>Coconuts (kr 20.0)</li>");
     }
 
+    @Test
+    void shouldPostNewCategory() throws IOException, SQLException {
+        HttpServer server = new HttpServer(10010, dataSource);
+        String requestBody = "categoryName=candy&color=black";
+        HttpClient postClient = new HttpClient("localhost", 10010, "/api/newCategory", "POST", requestBody);
+        assertEquals(200, postClient.getStatusCode());
+
+        HttpClient getClient = new HttpClient("localhost", 10010, "/api/categories");
+        assertThat(getClient.getResponseBody()).contains("<li>candy</li>");
+    }
+
+
 }
