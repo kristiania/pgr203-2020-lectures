@@ -1,0 +1,29 @@
+@startuml
+
+actor User
+participant WebBrowser
+
+box Java Server
+   participant HttpServer
+   participant ProductListController
+   participant ProductDao
+end box
+
+database PostgreSQL
+
+User -> WebBrowser: List products
+WebBrowser -> HttpServer: /index.html
+WebBrowser <-- HttpServer: <html>....<script>fetch()</html>
+WebBrowser -> HttpServer: /api/products
+HttpServer -> HttpServer: controllers.get("/api/products")
+note left of HttpServer: this is called routing
+HttpServer -> ProductListController: handle(HttpMessage request)
+ProductListController -> ProductDao: list()
+ProductDao -> PostgreSQL: SELECT * FROM PRODUCTS
+ProductDao <-- PostgreSQL: ResultSet
+ProductListController <-- ProductDao: List<Product>
+HttpServer <-- ProductListController: [HttpMessage response]
+WebBrowser <-- HttpServer: <li>Coconuts (kr 120)</li><li>..</li>
+User <- WebBrowser: List of products
+
+@enduml

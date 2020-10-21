@@ -1,0 +1,34 @@
+@startuml
+
+entity Products {
+    id
+    --
+    * name
+    category_id
+}
+
+entity ProductCategories {
+    id
+    --
+    name
+}
+
+entity Orders {
+    id
+    --
+    customer_name
+    customer_email
+    order_date
+}
+
+entity OrderLines {
+    product_id
+    order_id
+    --
+    quantity
+}
+
+ProductCategories ||--o{ Products
+Products ||-o{ OrderLines
+OrderLines }o-|| Orders
+@enduml
