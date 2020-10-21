@@ -40,7 +40,7 @@ public class ProductCategoryDao {
                 statement.setLong(1, id);
                 try (ResultSet rs = statement.executeQuery()) {
                     if (rs.next()) {
-                        return mapRowToCategory(rs);
+                        return mapRow(rs);
                     } else {
                         return null;
                     }
@@ -55,7 +55,7 @@ public class ProductCategoryDao {
                 try (ResultSet rs = statement.executeQuery()) {
                     List<ProductCategory> products = new ArrayList<>();
                     while (rs.next()) {
-                        products.add(mapRowToCategory(rs));
+                        products.add(mapRow(rs));
                     }
                     return products;
                 }
@@ -63,7 +63,7 @@ public class ProductCategoryDao {
         }
     }
 
-    private ProductCategory mapRowToCategory(ResultSet rs) throws SQLException {
+    private ProductCategory mapRow(ResultSet rs) throws SQLException {
         ProductCategory category = new ProductCategory();
         category.setId(rs.getLong("id"));
         category.setName(rs.getString("name"));

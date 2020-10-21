@@ -10,12 +10,10 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProductDao {
-
-    private final DataSource dataSource;
+public class ProductDao extends AbstractDao<Product> {
 
     public ProductDao(DataSource dataSource) {
-        this.dataSource = dataSource;
+        super(dataSource);
     }
 
     public void insert(Product product) throws SQLException {
@@ -37,18 +35,7 @@ public class ProductDao {
     }
 
     public Product retrieve(Long id) throws SQLException {
-        try (Connection connection = dataSource.getConnection()) {
-            try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM products WHERE id = ?")) {
-                statement.setLong(1, id);
-                try (ResultSet rs = statement.executeQuery()) {
-                    if (rs.next()) {
-                        return mapRowToProduct(rs);
-                    } else {
-                        return null;
-                    }
-                }
-            }
-        }
+        return retrieve(id, "SELECT * FROM products WHERE id = ?");
     }
 
     public List<Product> list() throws SQLException {
@@ -57,7 +44,7 @@ public class ProductDao {
                 try (ResultSet rs = statement.executeQuery()) {
                     List<Product> products = new ArrayList<>();
                     while (rs.next()) {
-                        products.add(mapRowToProduct(rs));
+                        products.add(mapRow(rs));
                     }
                     return products;
                 }
@@ -65,7 +52,8 @@ public class ProductDao {
         }
     }
 
-    private Product mapRowToProduct(ResultSet rs) throws SQLException {
+    @Override
+    protected Product mapRow(ResultSet rs) throws SQLException {
         Product product = new Product();
         product.setId(rs.getLong("id"));
         product.setName(rs.getString("product_name"));
