@@ -38,7 +38,7 @@ public class CategoryDaoTest {
     }
 
     private ProductCategory exampleCategory() {
-        return null;
+        return new ProductCategory();
     }
 
 }

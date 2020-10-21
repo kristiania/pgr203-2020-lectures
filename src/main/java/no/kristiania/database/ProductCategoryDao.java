@@ -18,7 +18,7 @@ public class ProductCategoryDao {
 
     public List<ProductCategory> list() throws SQLException {
         try (Connection connection = dataSource.getConnection()) {
-            try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM products")) {
+            try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM product_categories")) {
                 try (ResultSet rs = statement.executeQuery()) {
                     List<ProductCategory> products = new ArrayList<>();
                     while (rs.next()) {
@@ -30,14 +30,16 @@ public class ProductCategoryDao {
         }
     }
 
-    private ProductCategory mapRowToCategory(ResultSet rs) {
-        return new ProductCategory();
+    private ProductCategory mapRowToCategory(ResultSet rs) throws SQLException {
+        ProductCategory category = new ProductCategory();
+        category.setName(rs.getString("name"));
+        return category;
     }
 
     public void insert(ProductCategory category) throws SQLException {
         try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(
-                    "INSERT INTO products (product_name, price) values (?, ?)",
+                    "INSERT INTO product_categories (name) values (?)",
                     Statement.RETURN_GENERATED_KEYS
             )) {
                 statement.setString(1, category.getName());
