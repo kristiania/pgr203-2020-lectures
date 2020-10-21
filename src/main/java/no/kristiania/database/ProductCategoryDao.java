@@ -32,6 +32,7 @@ public class ProductCategoryDao {
 
     private ProductCategory mapRowToCategory(ResultSet rs) throws SQLException {
         ProductCategory category = new ProductCategory();
+        category.setId(rs.getLong("id"));
         category.setName(rs.getString("name"));
         return category;
     }
@@ -53,7 +54,18 @@ public class ProductCategoryDao {
         }
     }
 
-    public ProductCategory retrieve(Long id) {
-        return null;
+    public ProductCategory retrieve(Long id) throws SQLException {
+        try (Connection connection = dataSource.getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM product_categories WHERE id = ?")) {
+                statement.setLong(1, id);
+                try (ResultSet rs = statement.executeQuery()) {
+                    if (rs.next()) {
+                        return mapRowToCategory(rs);
+                    } else {
+                        return null;
+                    }
+                }
+            }
+        }
     }
 }
