@@ -9,12 +9,10 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProductCategoryDao {
-
-    private final DataSource dataSource;
+public class ProductCategoryDao extends AbstractDao<ProductCategory> {
 
     public ProductCategoryDao(DataSource dataSource) {
-        this.dataSource = dataSource;
+        super(dataSource);
     }
 
     public void insert(ProductCategory category) throws SQLException {
@@ -35,18 +33,7 @@ public class ProductCategoryDao {
     }
 
     public ProductCategory retrieve(Long id) throws SQLException {
-        try (Connection connection = dataSource.getConnection()) {
-            try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM product_categories WHERE id = ?")) {
-                statement.setLong(1, id);
-                try (ResultSet rs = statement.executeQuery()) {
-                    if (rs.next()) {
-                        return mapRow(rs);
-                    } else {
-                        return null;
-                    }
-                }
-            }
-        }
+        return retrieve(id, "SELECT * FROM product_categories WHERE id = ?");
     }
 
     public List<ProductCategory> list() throws SQLException {
@@ -63,7 +50,8 @@ public class ProductCategoryDao {
         }
     }
 
-    private ProductCategory mapRow(ResultSet rs) throws SQLException {
+    @Override
+    protected ProductCategory mapRow(ResultSet rs) throws SQLException {
         ProductCategory category = new ProductCategory();
         category.setId(rs.getLong("id"));
         category.setName(rs.getString("name"));
