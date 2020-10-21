@@ -1,8 +1,6 @@
 package no.kristiania.database;
 
 
-import org.postgresql.ds.PGSimpleDataSource;
-
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,7 +9,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 public class ProductDao {
 
@@ -54,14 +51,6 @@ public class ProductDao {
         }
     }
 
-    private Product mapRowToProduct(ResultSet rs) throws SQLException {
-        Product product = new Product();
-        product.setId(rs.getLong("id"));
-        product.setName(rs.getString("product_name"));
-        product.setPrice(rs.getDouble("price"));
-        return product;
-    }
-
     public List<Product> list() throws SQLException {
         try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM products")) {
@@ -76,23 +65,11 @@ public class ProductDao {
         }
     }
 
-    public static void main(String[] args) throws SQLException {
-        PGSimpleDataSource dataSource = new PGSimpleDataSource();
-        dataSource.setUrl("jdbc:postgresql://localhost:5432/kristianiashop");
-        dataSource.setUser("kristianiashopuser");
-        // TODO: database passwords should never be checked in!
-        dataSource.setPassword("5HGQ[f_t2D}^?");
-
-        ProductDao productDao = new ProductDao(dataSource);
-
-        System.out.println("What's the name of the new product");
-        Scanner scanner = new Scanner(System.in);
-
+    private Product mapRowToProduct(ResultSet rs) throws SQLException {
         Product product = new Product();
-        product.setName(scanner.nextLine());
-
-        productDao.insert(product);
-        System.out.println(productDao.list());
+        product.setId(rs.getLong("id"));
+        product.setName(rs.getString("product_name"));
+        product.setPrice(rs.getDouble("price"));
+        return product;
     }
-
 }

@@ -10,31 +10,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ProductCategoryDao {
-    private DataSource dataSource;
+
+    private final DataSource dataSource;
 
     public ProductCategoryDao(DataSource dataSource) {
         this.dataSource = dataSource;
-    }
-
-    public List<ProductCategory> list() throws SQLException {
-        try (Connection connection = dataSource.getConnection()) {
-            try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM product_categories")) {
-                try (ResultSet rs = statement.executeQuery()) {
-                    List<ProductCategory> products = new ArrayList<>();
-                    while (rs.next()) {
-                        products.add(mapRowToCategory(rs));
-                    }
-                    return products;
-                }
-            }
-        }
-    }
-
-    private ProductCategory mapRowToCategory(ResultSet rs) throws SQLException {
-        ProductCategory category = new ProductCategory();
-        category.setId(rs.getLong("id"));
-        category.setName(rs.getString("name"));
-        return category;
     }
 
     public void insert(ProductCategory category) throws SQLException {
@@ -67,5 +47,26 @@ public class ProductCategoryDao {
                 }
             }
         }
+    }
+
+    public List<ProductCategory> list() throws SQLException {
+        try (Connection connection = dataSource.getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM product_categories")) {
+                try (ResultSet rs = statement.executeQuery()) {
+                    List<ProductCategory> products = new ArrayList<>();
+                    while (rs.next()) {
+                        products.add(mapRowToCategory(rs));
+                    }
+                    return products;
+                }
+            }
+        }
+    }
+
+    private ProductCategory mapRowToCategory(ResultSet rs) throws SQLException {
+        ProductCategory category = new ProductCategory();
+        category.setId(rs.getLong("id"));
+        category.setName(rs.getString("name"));
+        return category;
     }
 }
