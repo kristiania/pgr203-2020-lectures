@@ -26,9 +26,11 @@ public class HttpServer {
 
     private Map<String, ControllerMcControllerface> controllers;
 
+    private int port;
     private ProductDao productDao;
 
     public HttpServer(int port, DataSource dataSource) throws IOException {
+        this.port = port;
         productDao = new ProductDao(dataSource);
         ProductCategoryDao productCategoryDao = new ProductCategoryDao(dataSource);
         controllers = Map.of(
@@ -51,6 +53,10 @@ public class HttpServer {
                 }
             }
         }).start(); // Start the threads, so the code inside executes without block the current thread
+    }
+
+    public int getPort() {
+        return port;
     }
 
     // This code will be executed for each client

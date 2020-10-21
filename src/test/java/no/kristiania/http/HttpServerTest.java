@@ -30,29 +30,29 @@ class HttpServerTest {
 
     @Test
     void shouldReturnSuccessfulStatusCode() throws IOException {
-        new HttpServer(10001, dataSource);
-        HttpClient client = new HttpClient("localhost", 10001, "/echo");
+        HttpServer server = new HttpServer(10001, dataSource);
+        HttpClient client = new HttpClient("localhost", server.getPort(), "/echo");
         assertEquals(200, client.getStatusCode());
     }
 
     @Test
     void shouldReturnUnsuccessfulStatusCode() throws IOException {
-        new HttpServer(10002, dataSource);
-        HttpClient client = new HttpClient("localhost", 10002, "/echo?status=404");
+        HttpServer server = new HttpServer(10002, dataSource);
+        HttpClient client = new HttpClient("localhost", server.getPort(), "/echo?status=404");
         assertEquals(404, client.getStatusCode());
     }
 
     @Test
     void shouldReturnContentLength() throws IOException {
-        new HttpServer(10003, dataSource);
-        HttpClient client = new HttpClient("localhost", 10003, "/echo?body=HelloWorld");
+        HttpServer server = new HttpServer(10003, dataSource);
+        HttpClient client = new HttpClient("localhost", server.getPort(), "/echo?body=HelloWorld");
         assertEquals("10", client.getResponseHeader("Content-Length"));
     }
 
     @Test
     void shouldReturnResponseBody() throws IOException {
-        new HttpServer(10004, dataSource);
-        HttpClient client = new HttpClient("localhost", 10004, "/echo?body=HelloWorld");
+        HttpServer server = new HttpServer(10004, dataSource);
+        HttpClient client = new HttpClient("localhost", server.getPort(), "/echo?body=HelloWorld");
         assertEquals("HelloWorld", client.getResponseBody());
     }
 
@@ -64,7 +64,7 @@ class HttpServerTest {
         String fileContent = "Hello World " + new Date();
         Files.writeString(new File(contentRoot, "test.txt").toPath(), fileContent);
 
-        HttpClient client = new HttpClient("localhost", 10005, "/test.txt");
+        HttpClient client = new HttpClient("localhost", server.getPort(), "/test.txt");
         assertEquals(fileContent, client.getResponseBody());
         assertEquals("text/plain", client.getResponseHeader("Content-Type"));
     }
@@ -76,14 +76,14 @@ class HttpServerTest {
 
         Files.writeString(new File(contentRoot, "index.html").toPath(), "<h2>Hello World</h2>");
 
-        HttpClient client = new HttpClient("localhost", 10006, "/index.html");
+        HttpClient client = new HttpClient("localhost", server.getPort(), "/index.html");
         assertEquals("text/html", client.getResponseHeader("Content-Type"));
     }
 
     @Test
     void shouldReturn404IfFileNotFound() throws IOException {
         HttpServer server = new HttpServer(10007, dataSource);
-        HttpClient client = new HttpClient("localhost", 10007, "/notFound.txt");
+        HttpClient client = new HttpClient("localhost", server.getPort(), "/notFound.txt");
         assertEquals(404, client.getStatusCode());
     }
 
@@ -91,7 +91,7 @@ class HttpServerTest {
     void shouldPostNewProduct() throws IOException, SQLException {
         HttpServer server = new HttpServer(10008, dataSource);
         String requestBody = "productName=apples&price=10";
-        HttpClient client = new HttpClient("localhost", 10008, "/api/newProduct", "POST", requestBody);
+        HttpClient client = new HttpClient("localhost", server.getPort(), "/api/newProduct", "POST", requestBody);
         assertEquals(200, client.getStatusCode());
         assertThat(server.getProducts())
                 .filteredOn(product -> product.getName().equals("apples"))
@@ -107,7 +107,7 @@ class HttpServerTest {
         product.setName("Coconuts");
         product.setPrice(20);
         productDao.insert(product);
-        HttpClient client = new HttpClient("localhost", 10009, "/api/products");
+        HttpClient client = new HttpClient("localhost", server.getPort(), "/api/products");
         assertThat(client.getResponseBody()).contains("<li>Coconuts (kr 20.0)</li>");
     }
 
@@ -115,10 +115,10 @@ class HttpServerTest {
     void shouldPostNewCategory() throws IOException, SQLException {
         HttpServer server = new HttpServer(10010, dataSource);
         String requestBody = "categoryName=candy&color=black";
-        HttpClient postClient = new HttpClient("localhost", 10010, "/api/newCategory", "POST", requestBody);
+        HttpClient postClient = new HttpClient("localhost", server.getPort(), "/api/newCategory", "POST", requestBody);
         assertEquals(200, postClient.getStatusCode());
 
-        HttpClient getClient = new HttpClient("localhost", 10010, "/api/categories");
+        HttpClient getClient = new HttpClient("localhost", server.getPort(), "/api/categories");
         assertThat(getClient.getResponseBody()).contains("<li>candy</li>");
     }
 
