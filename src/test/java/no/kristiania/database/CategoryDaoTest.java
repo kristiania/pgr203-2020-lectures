@@ -5,6 +5,8 @@ import org.h2.jdbcx.JdbcDataSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.sql.SQLException;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CategoryDaoTest {
@@ -20,9 +22,11 @@ public class CategoryDaoTest {
     }
 
     @Test
-    void shouldListAllCategories() {
+    void shouldListAllCategories() throws SQLException {
         ProductCategory category1 = exampleCategory();
         ProductCategory category2 = exampleCategory();
+        categoryDao.insert(category1);
+        categoryDao.insert(category2);
         assertThat(categoryDao.list())
                 .extracting(ProductCategory::getName)
                 .contains(category1.getName(), category2.getName());
