@@ -52,4 +52,8 @@ public class ProductCategoryDao {
             }
         }
     }
+
+    public ProductCategory retrieve(Long id) {
+        return null;
+    }
 }

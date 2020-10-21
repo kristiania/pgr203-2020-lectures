@@ -33,8 +33,15 @@ public class CategoryDaoTest {
     }
 
     @Test
-    void shouldRetrieveAllCategoryProperties() {
+    void shouldRetrieveAllCategoryProperties() throws SQLException {
+        categoryDao.insert(exampleCategory());
+        categoryDao.insert(exampleCategory());
+        ProductCategory category = exampleCategory();
+        categoryDao.insert(category);
 
+        assertThat(categoryDao.retrieve(category.getId()))
+                .usingRecursiveComparison()
+                .isEqualTo(category);
     }
 
     private ProductCategory exampleCategory() {
