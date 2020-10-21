@@ -65,6 +65,7 @@ public class HttpServer {
 
             Product product = new Product();
             product.setName(requestParameter.getParameter("productName"));
+            product.setPrice(Double.parseDouble(requestParameter.getParameter("price")));
             productDao.insert(product);
             String body = "Okay";
             String response = "HTTP/1.1 200 OK\r\n" +
@@ -174,7 +175,7 @@ public class HttpServer {
         logger.info("Started on http://localhost:{}/index.html", 8080);
     }
 
-    public List<Product> getProductNames() throws SQLException {
+    public List<Product> getProducts() throws SQLException {
         return productDao.list();
     }
 }

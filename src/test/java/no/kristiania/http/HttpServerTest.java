@@ -90,11 +90,13 @@ class HttpServerTest {
     @Test
     void shouldPostNewProduct() throws IOException, SQLException {
         HttpServer server = new HttpServer(10008, dataSource);
-        HttpClient client = new HttpClient("localhost", 10008, "/api/newProduct", "POST", "productName=apples&price=10");
+        String requestBody = "productName=apples&price=10";
+        HttpClient client = new HttpClient("localhost", 10008, "/api/newProduct", "POST", requestBody);
         assertEquals(200, client.getStatusCode());
-        assertThat(server.getProductNames())
-                .extracting(product -> product.getName())
-                .contains("apples");
+        assertThat(server.getProducts())
+                .filteredOn(product -> product.getName().equals("apples"))
+                .isNotEmpty()
+                .satisfies(p -> assertThat(p.get(0).getPrice()).isEqualTo(10));
     }
 
     @Test
