@@ -1,6 +1,5 @@
 package no.kristiania.http;
 
-import no.kristiania.database.Product;
 import no.kristiania.database.ProductCategory;
 import no.kristiania.database.ProductCategoryDao;
 
