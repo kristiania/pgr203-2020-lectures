@@ -26,11 +26,10 @@ public class HttpServer {
 
     private Map<String, ControllerMcControllerface> controllers;
 
-    private int port;
     private ProductDao productDao;
+    private ServerSocket serverSocket;
 
     public HttpServer(int port, DataSource dataSource) throws IOException {
-        this.port = port;
         productDao = new ProductDao(dataSource);
         ProductCategoryDao productCategoryDao = new ProductCategoryDao(dataSource);
         controllers = Map.of(
@@ -39,7 +38,7 @@ public class HttpServer {
         );
 
         // Opens a entry point to our program for network clients
-        ServerSocket serverSocket = new ServerSocket(port);
+        serverSocket = new ServerSocket(port);
 
         // new Threads executes the code in a separate "thread", that is: In parallel
         new Thread(() -> { // anonymous function with code that will be executed in parallel
@@ -56,7 +55,7 @@ public class HttpServer {
     }
 
     public int getPort() {
-        return port;
+        return serverSocket.getLocalPort();
     }
 
     // This code will be executed for each client
