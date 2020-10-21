@@ -1,6 +1,7 @@
 package no.kristiania.http;
 
 import no.kristiania.database.Product;
+import no.kristiania.database.ProductCategoryDao;
 import no.kristiania.database.ProductDao;
 import org.flywaydb.core.Flyway;
 import org.postgresql.ds.PGSimpleDataSource;
@@ -23,15 +24,18 @@ public class HttpServer {
 
     private static final Logger logger = LoggerFactory.getLogger(HttpServer.class);
 
-    private Map<String, ControllerMcControllerface> controllers = Map.of(
-            "/api/newCategory", new ProductCategoryPostController(),
-            "/api/categories", new ProductCategoryGetController()
-    );
+    private Map<String, ControllerMcControllerface> controllers;
 
     private ProductDao productDao;
 
     public HttpServer(int port, DataSource dataSource) throws IOException {
         productDao = new ProductDao(dataSource);
+        ProductCategoryDao productCategoryDao = new ProductCategoryDao(dataSource);
+        controllers = Map.of(
+                "/api/newCategory", new ProductCategoryPostController(productCategoryDao),
+                "/api/categories", new ProductCategoryGetController(productCategoryDao)
+        );
+
         // Opens a entry point to our program for network clients
         ServerSocket serverSocket = new ServerSocket(port);
 
