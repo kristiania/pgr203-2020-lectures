@@ -6,12 +6,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
+import java.util.Random;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CategoryDaoTest {
 
     private ProductCategoryDao categoryDao;
+    private Random random = new Random();
 
     @BeforeEach
     void setUp() {
@@ -38,6 +40,7 @@ public class CategoryDaoTest {
         categoryDao.insert(exampleCategory());
         ProductCategory category = exampleCategory();
         categoryDao.insert(category);
+        assertThat(category).hasNoNullFieldsOrProperties();
 
         assertThat(categoryDao.retrieve(category.getId()))
                 .usingRecursiveComparison()
@@ -45,7 +48,14 @@ public class CategoryDaoTest {
     }
 
     private ProductCategory exampleCategory() {
-        return new ProductCategory();
+        ProductCategory category = new ProductCategory();
+        category.setName(exampleCategoryName());
+        return category;
+    }
+
+    private String exampleCategoryName() {
+        String[] options = {"Fruit", "Candy", "Non-food", "Dairy"};
+        return options[random.nextInt(options.length)];
     }
 
 }
