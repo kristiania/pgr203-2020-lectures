@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.sql.SQLException;
 
-public class ProductCategoryGetController implements ControllerMcControllerface {
+public class ProductCategoryGetController implements HttpController {
     private ProductCategoryDao productCategoryDao;
 
     public ProductCategoryGetController(ProductCategoryDao productCategoryDao) {

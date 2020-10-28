@@ -24,7 +24,7 @@ public class HttpServer {
 
     private static final Logger logger = LoggerFactory.getLogger(HttpServer.class);
 
-    private Map<String, ControllerMcControllerface> controllers;
+    private Map<String, HttpController> controllers;
 
     private ProductDao productDao;
     private ServerSocket serverSocket;
@@ -88,7 +88,7 @@ public class HttpServer {
             } else if (requestPath.equals("/api/products")) {
                 handleGetProducts(clientSocket);
             } else {
-                ControllerMcControllerface controller = controllers.get(requestPath);
+                HttpController controller = controllers.get(requestPath);
                 if (controller != null) {
                     controller.handle(request, clientSocket);
                 } else {
@@ -98,7 +98,7 @@ public class HttpServer {
         }
     }
 
-    private ControllerMcControllerface getController(String requestPath) {
+    private HttpController getController(String requestPath) {
         return controllers.get(requestPath);
     }
 
