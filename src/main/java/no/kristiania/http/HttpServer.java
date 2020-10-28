@@ -34,7 +34,9 @@ public class HttpServer {
         ProductCategoryDao productCategoryDao = new ProductCategoryDao(dataSource);
         controllers = Map.of(
                 "/api/newCategory", new ProductCategoryPostController(productCategoryDao),
-                "/api/categories", new ProductCategoryGetController(productCategoryDao)
+                "/api/categories", new ProductCategoryGetController(productCategoryDao),
+                "/api/categoryOptions", new ProductCategoryOptionsController(productCategoryDao),
+                "/api/productOptions", new ProductOptionsController(productDao)
         );
 
         // Opens a entry point to our program for network clients
