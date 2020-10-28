@@ -1,11 +1,14 @@
 package no.kristiania.database;
 
+import no.kristiania.http.HttpMessage;
 import no.kristiania.http.ProductOptionsController;
+import no.kristiania.http.UpdateProductController;
 import org.flywaydb.core.Flyway;
 import org.h2.jdbcx.JdbcDataSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Random;
 
@@ -15,6 +18,7 @@ public class ProductDaoTest {
 
     private ProductDao productDao;
     private static Random random = new Random();
+    private ProductCategoryDao categoryDao;
 
     @BeforeEach
     void setUp() {
@@ -22,6 +26,7 @@ public class ProductDaoTest {
         dataSource.setUrl("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1");
         Flyway.configure().dataSource(dataSource).load().migrate();
         productDao = new ProductDao(dataSource);
+        categoryDao = new ProductCategoryDao(dataSource);
     }
 
     @Test
@@ -41,7 +46,7 @@ public class ProductDaoTest {
         productDao.insert(exampleProduct());
         Product product = exampleProduct();
         productDao.insert(product);
-        assertThat(product).hasNoNullFieldsOrProperties();
+        assertThat(product).hasNoNullFieldsOrPropertiesExcept("categoryId");
         assertThat(productDao.retrieve(product.getId()))
                 .usingRecursiveComparison()
                 .isEqualTo(product);
@@ -55,6 +60,24 @@ public class ProductDaoTest {
 
         assertThat(controller.getBody())
                 .contains("<option value=" + product.getId() + ">" + product.getName() + "</option>");
+    }
+
+    @Test
+    void shouldUpdateExistingProductWithNewCategory() throws IOException, SQLException {
+        UpdateProductController controller = new UpdateProductController(productDao);
+
+        Product product = exampleProduct();
+        productDao.insert(product);
+
+        ProductCategory category = CategoryDaoTest.exampleCategory();
+        categoryDao.insert(category);
+
+        String body = "productId=" + product.getId() + "&categoryId=" + category.getId();
+        controller.handle(new HttpMessage(body), null);
+
+        assertThat(productDao.retrieve(product.getId()).getCategoryId())
+                .isEqualTo(category.getId());
+
     }
 
     public static Product exampleProduct() {

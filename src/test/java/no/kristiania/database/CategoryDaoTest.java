@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class CategoryDaoTest {
 
     private ProductCategoryDao categoryDao;
-    private Random random = new Random();
+    private static Random random = new Random();
 
     @BeforeEach
     void setUp() {
@@ -59,13 +59,13 @@ public class CategoryDaoTest {
                 .contains("<option value=" + productCategory.getId() + ">" + productCategory.getName() + "</option>");
     }
 
-    private ProductCategory exampleCategory() {
+    public static ProductCategory exampleCategory() {
         ProductCategory category = new ProductCategory();
         category.setName(exampleCategoryName());
         return category;
     }
 
-    private String exampleCategoryName() {
+    private static String exampleCategoryName() {
         String[] options = {"Fruit", "Candy", "Non-food", "Dairy"};
         return options[random.nextInt(options.length)];
     }

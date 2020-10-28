@@ -36,7 +36,8 @@ public class HttpServer {
                 "/api/newCategory", new ProductCategoryPostController(productCategoryDao),
                 "/api/categories", new ProductCategoryGetController(productCategoryDao),
                 "/api/categoryOptions", new ProductCategoryOptionsController(productCategoryDao),
-                "/api/productOptions", new ProductOptionsController(productDao)
+                "/api/productOptions", new ProductOptionsController(productDao),
+                "/api/updateProduct", new UpdateProductController(productDao)
         );
 
         // Opens a entry point to our program for network clients
