@@ -1,13 +1,18 @@
 package no.kristiania.http;
 
+import no.kristiania.database.Product;
 import no.kristiania.database.ProductDao;
 
 import java.io.IOException;
 import java.net.Socket;
 import java.sql.SQLException;
+import java.util.stream.Collectors;
 
 public class ProductOptionsController implements HttpController {
+    private ProductDao productDao;
+
     public ProductOptionsController(ProductDao productDao) {
+        this.productDao = productDao;
     }
 
     @Override
@@ -22,7 +27,11 @@ public class ProductOptionsController implements HttpController {
         clientSocket.getOutputStream().write(response.getBytes());
     }
 
-    public String getBody() {
-        return "<option>A</option><option>B</option>";
+    public String getBody() throws SQLException {
+        String body = "";
+        for (Product product : productDao.list()) {
+            body += "<option value=" + product.getId() + ">" + product.getName() + "</option>";
+        }
+        return body;
     }
 }
