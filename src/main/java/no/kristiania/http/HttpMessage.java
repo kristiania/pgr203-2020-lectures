@@ -95,7 +95,9 @@ public class HttpMessage {
             clientSocket.getOutputStream().write((headerName + ": " + headers.get(headerName) + "\r\n").getBytes());
         }
         clientSocket.getOutputStream().write(("\r\n").getBytes());
-        clientSocket.getOutputStream().write(body.getBytes());
+        if (body != null) {
+            clientSocket.getOutputStream().write(body.getBytes());
+        }
     }
 
     public void setStartLine(String startLine) {
