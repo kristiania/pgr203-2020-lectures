@@ -28,13 +28,25 @@ public class ProductDao extends AbstractDao<Product> {
 
                 try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
                     generatedKeys.next();
-                    product.setId(generatedKeys.getLong("id"));
+                    product.setId(generatedKeys.getInt("id"));
                 }
             }
         }
     }
 
-    public Product retrieve(Long id) throws SQLException {
+    public void update(Product product) throws SQLException {
+        try (Connection connection = dataSource.getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(
+                    "UPDATE products SET category_id = ? WHERE id = ?"
+            )) {
+                statement.setInt(1, product.getCategoryId());
+                statement.setInt(2, product.getId());
+                statement.executeUpdate();
+            }
+        }
+    }
+
+    public Product retrieve(Integer id) throws SQLException {
         return retrieve(id, "SELECT * FROM products WHERE id = ?");
     }
 
@@ -55,9 +67,11 @@ public class ProductDao extends AbstractDao<Product> {
     @Override
     protected Product mapRow(ResultSet rs) throws SQLException {
         Product product = new Product();
-        product.setId(rs.getLong("id"));
+        product.setId(rs.getInt("id"));
+        product.setCategoryId((Integer) rs.getObject("category_id"));
         product.setName(rs.getString("product_name"));
         product.setPrice(rs.getDouble("price"));
         return product;
     }
+
 }

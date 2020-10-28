@@ -1,5 +1,7 @@
 package no.kristiania.database;
 
+import no.kristiania.http.ProductCategoryOptionsController;
+import no.kristiania.http.ProductOptionsController;
 import org.flywaydb.core.Flyway;
 import org.h2.jdbcx.JdbcDataSource;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class CategoryDaoTest {
 
     private ProductCategoryDao categoryDao;
-    private Random random = new Random();
+    private static Random random = new Random();
 
     @BeforeEach
     void setUp() {
@@ -47,13 +49,23 @@ public class CategoryDaoTest {
                 .isEqualTo(category);
     }
 
-    private ProductCategory exampleCategory() {
+    @Test
+    void shouldReturnCategoriesAsOptions() throws SQLException {
+        ProductCategoryOptionsController controller = new ProductCategoryOptionsController(categoryDao);
+        ProductCategory productCategory = exampleCategory();
+        categoryDao.insert(productCategory);
+
+        assertThat(controller.getBody())
+                .contains("<option value=" + productCategory.getId() + ">" + productCategory.getName() + "</option>");
+    }
+
+    public static ProductCategory exampleCategory() {
         ProductCategory category = new ProductCategory();
         category.setName(exampleCategoryName());
         return category;
     }
 
-    private String exampleCategoryName() {
+    private static String exampleCategoryName() {
         String[] options = {"Fruit", "Candy", "Non-food", "Dairy"};
         return options[random.nextInt(options.length)];
     }
