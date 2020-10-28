@@ -1,5 +1,6 @@
 package no.kristiania.database;
 
+import no.kristiania.http.ProductOptionsController;
 import org.flywaydb.core.Flyway;
 import org.h2.jdbcx.JdbcDataSource;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,6 +45,16 @@ public class ProductDaoTest {
         assertThat(productDao.retrieve(product.getId()))
                 .usingRecursiveComparison()
                 .isEqualTo(product);
+    }
+
+    @Test
+    void shouldReturnProductsAsOptions() throws SQLException {
+        ProductOptionsController controller = new ProductOptionsController(productDao);
+        Product product = ProductDaoTest.exampleProduct();
+        productDao.insert(product);
+
+        assertThat(controller.getBody())
+                .contains("<option value=" + product.getId() + ">" + product.getName() + "</option>");
     }
 
     public static Product exampleProduct() {
