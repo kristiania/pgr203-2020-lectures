@@ -1,5 +1,7 @@
 package no.kristiania.database;
 
+import no.kristiania.http.ProductCategoryOptionsController;
+import no.kristiania.http.ProductOptionsController;
 import org.flywaydb.core.Flyway;
 import org.h2.jdbcx.JdbcDataSource;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,6 +47,16 @@ public class CategoryDaoTest {
         assertThat(categoryDao.retrieve(category.getId()))
                 .usingRecursiveComparison()
                 .isEqualTo(category);
+    }
+
+    @Test
+    void shouldReturnCategoriesAsOptions() throws SQLException {
+        ProductCategoryOptionsController controller = new ProductCategoryOptionsController(categoryDao);
+        ProductCategory productCategory = exampleCategory();
+        categoryDao.insert(productCategory);
+
+        assertThat(controller.getBody())
+                .contains("<option value=" + productCategory.getId() + ">" + productCategory.getName() + "</option>");
     }
 
     private ProductCategory exampleCategory() {

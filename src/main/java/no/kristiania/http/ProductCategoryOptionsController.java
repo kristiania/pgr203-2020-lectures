@@ -1,5 +1,7 @@
 package no.kristiania.http;
 
+import no.kristiania.database.Product;
+import no.kristiania.database.ProductCategory;
 import no.kristiania.database.ProductCategoryDao;
 
 import java.io.IOException;
@@ -7,19 +9,24 @@ import java.net.Socket;
 import java.sql.SQLException;
 
 public class ProductCategoryOptionsController implements HttpController {
-    public ProductCategoryOptionsController(ProductCategoryDao productCategoryDao) {
+    private ProductCategoryDao categoryDao;
+
+    public ProductCategoryOptionsController(ProductCategoryDao categoryDao) {
+        this.categoryDao = categoryDao;
     }
 
     @Override
     public void handle(HttpMessage request, Socket clientSocket) throws IOException, SQLException {
-        String body = "<option>A</option><option>B</option>";
-        String response = "HTTP/1.1 200 OK\r\n" +
-                "Connection: close\r\n" +
-                "Content-Length: " + body.length() + "\r\n" +
-                "\r\n" +
-                body;
-        // Write the response back to the client
-        clientSocket.getOutputStream().write(response.getBytes());
-
+        HttpMessage response = new HttpMessage(getBody());
+        response.write(clientSocket);
     }
+
+    public String getBody() throws SQLException {
+        String body = "";
+        for (ProductCategory category : categoryDao.list()) {
+            body += "<option value=" + category.getId() + ">" + category.getName() + "</option>";
+        }
+        return body;
+    }
+
 }
