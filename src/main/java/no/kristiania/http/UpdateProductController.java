@@ -16,6 +16,11 @@ public class UpdateProductController implements HttpController {
 
     @Override
     public void handle(HttpMessage request, Socket clientSocket) throws IOException, SQLException {
+        HttpMessage response = handle(request);
+        response.write(clientSocket);
+    }
+
+    public HttpMessage handle(HttpMessage request) throws SQLException {
         QueryString requestParameter = new QueryString(request.getBody());
 
         Integer productId = Integer.valueOf(requestParameter.getParameter("productId"));
@@ -24,5 +29,7 @@ public class UpdateProductController implements HttpController {
         product.setCategoryId(categoryId);
 
         productDao.update(product);
+
+        return new HttpMessage("Okay");
     }
 }
