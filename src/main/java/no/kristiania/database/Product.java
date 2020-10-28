@@ -3,8 +3,8 @@ package no.kristiania.database;
 public class Product {
     private String name;
     private double price;
-    private Long id;
-    private Long categoryId;
+    private Integer id;
+    private Integer categoryId;
 
     public String getName() {
         return name;
@@ -14,11 +14,11 @@ public class Product {
         this.name = name;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -30,11 +30,11 @@ public class Product {
         this.price = price;
     }
 
-    public Long getCategoryId() {
+    public Integer getCategoryId() {
         return categoryId;
     }
 
-    public void setCategoryId(Long categoryId) {
+    public void setCategoryId(Integer categoryId) {
         this.categoryId = categoryId;
     }
 }

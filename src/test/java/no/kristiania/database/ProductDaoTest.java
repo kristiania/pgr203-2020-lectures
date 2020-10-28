@@ -77,7 +77,6 @@ public class ProductDaoTest {
 
         assertThat(productDao.retrieve(product.getId()).getCategoryId())
                 .isEqualTo(category.getId());
-
     }
 
     public static Product exampleProduct() {

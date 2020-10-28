@@ -18,8 +18,8 @@ public class UpdateProductController implements HttpController {
     public void handle(HttpMessage request, Socket clientSocket) throws IOException, SQLException {
         QueryString requestParameter = new QueryString(request.getBody());
 
-        Long productId = Long.valueOf(requestParameter.getParameter("productId"));
-        Long categoryId = Long.valueOf(requestParameter.getParameter("categoryId"));
+        Integer productId = Integer.valueOf(requestParameter.getParameter("productId"));
+        Integer categoryId = Integer.valueOf(requestParameter.getParameter("categoryId"));
         Product product = productDao.retrieve(productId);
         product.setCategoryId(categoryId);
 

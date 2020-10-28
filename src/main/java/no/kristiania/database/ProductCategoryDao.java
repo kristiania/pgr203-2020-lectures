@@ -26,13 +26,13 @@ public class ProductCategoryDao extends AbstractDao<ProductCategory> {
 
                 try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
                     generatedKeys.next();
-                    category.setId(generatedKeys.getLong("id"));
+                    category.setId(generatedKeys.getInt("id"));
                 }
             }
         }
     }
 
-    public ProductCategory retrieve(Long id) throws SQLException {
+    public ProductCategory retrieve(Integer id) throws SQLException {
         return retrieve(id, "SELECT * FROM product_categories WHERE id = ?");
     }
 
@@ -53,7 +53,7 @@ public class ProductCategoryDao extends AbstractDao<ProductCategory> {
     @Override
     protected ProductCategory mapRow(ResultSet rs) throws SQLException {
         ProductCategory category = new ProductCategory();
-        category.setId(rs.getLong("id"));
+        category.setId(rs.getInt("id"));
         category.setName(rs.getString("name"));
         return category;
     }

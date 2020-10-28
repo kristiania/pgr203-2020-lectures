@@ -2,7 +2,7 @@ package no.kristiania.database;
 
 public class ProductCategory {
     private String name;
-    private Long id;
+    private Integer id;
 
     public String getName() {
         return name;
@@ -12,11 +12,11 @@ public class ProductCategory {
         this.name = name;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 }
