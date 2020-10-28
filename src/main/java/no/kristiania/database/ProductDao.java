@@ -34,6 +34,10 @@ public class ProductDao extends AbstractDao<Product> {
         }
     }
 
+    public void update(Product product) {
+
+    }
+
     public Product retrieve(Long id) throws SQLException {
         return retrieve(id, "SELECT * FROM products WHERE id = ?");
     }
@@ -60,4 +64,5 @@ public class ProductDao extends AbstractDao<Product> {
         product.setPrice(rs.getDouble("price"));
         return product;
     }
+
 }
