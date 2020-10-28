@@ -78,7 +78,9 @@ public class ProductDaoTest {
         assertThat(productDao.retrieve(product.getId()).getCategoryId())
                 .isEqualTo(category.getId());
         assertThat(response.getStartLine())
-                .isEqualTo("HTTP/1.1 200 OK");
+                .isEqualTo("HTTP/1.1 302 Redirect");
+        assertThat(response.getHeaders().get("Location"))
+                .isEqualTo("http://localhost:8080/index.html");
     }
 
     public static Product exampleProduct() {
