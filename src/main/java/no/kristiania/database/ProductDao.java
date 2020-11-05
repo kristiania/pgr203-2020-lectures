@@ -19,11 +19,12 @@ public class ProductDao extends AbstractDao<Product> {
     public void insert(Product product) throws SQLException {
         try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(
-                    "INSERT INTO products (product_name, price) values (?, ?)",
+                    "INSERT INTO products (product_name, price, category_id) values (?, ?, ?)",
                     Statement.RETURN_GENERATED_KEYS
             )) {
                 statement.setString(1, product.getName());
                 statement.setDouble(2, product.getPrice());
+                statement.setObject(3, product.getCategoryId());
                 statement.executeUpdate();
 
                 try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
@@ -53,6 +54,21 @@ public class ProductDao extends AbstractDao<Product> {
     public List<Product> list() throws SQLException {
         try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM products")) {
+                try (ResultSet rs = statement.executeQuery()) {
+                    List<Product> products = new ArrayList<>();
+                    while (rs.next()) {
+                        products.add(mapRow(rs));
+                    }
+                    return products;
+                }
+            }
+        }
+    }
+
+    public List<Product> queryProductsByCategoryId(Integer categoryId) throws SQLException {
+        try (Connection connection = dataSource.getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM products WHERE category_id = ?")) {
+                statement.setInt(1, categoryId);
                 try (ResultSet rs = statement.executeQuery()) {
                     List<Product> products = new ArrayList<>();
                     while (rs.next()) {

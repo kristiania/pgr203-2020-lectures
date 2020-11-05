@@ -9,10 +9,21 @@
 <h1>We have the following in our store</h1>
 
 <div id="products"></div>
+
+<form>
+    <p>
+        Filter by category: <select id="categoryId" name="categoryId"></select>
+        <button>Filter</button>
+    </p>
+</form>
+
 </body>
 <script>
-    fetch("/api/products").then(response => response.text()).then(html => {
+    fetch("/api/products" + location.search).then(response => response.text()).then(html => {
         document.getElementById("products").innerHTML = html;
+    });
+    fetch("/api/categoryOptions").then(response => response.text()).then(html => {
+        document.getElementById("categoryId").innerHTML = html;
     });
 </script>
 </html>

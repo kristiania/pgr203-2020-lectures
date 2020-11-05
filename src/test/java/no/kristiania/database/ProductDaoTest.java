@@ -19,14 +19,30 @@ public class ProductDaoTest {
     private ProductDao productDao;
     private static Random random = new Random();
     private ProductCategoryDao categoryDao;
+    private ProductCategory defaultCategory;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws SQLException {
         JdbcDataSource dataSource = new JdbcDataSource();
         dataSource.setUrl("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1");
         Flyway.configure().dataSource(dataSource).load().migrate();
         productDao = new ProductDao(dataSource);
         categoryDao = new ProductCategoryDao(dataSource);
+
+        defaultCategory = CategoryDaoTest.exampleCategory();
+        categoryDao.insert(defaultCategory);
+    }
+
+    @Test
+    void shouldSaveAndRetrieveAllProductProperties() throws SQLException {
+        productDao.insert(exampleProduct());
+        productDao.insert(exampleProduct());
+        Product product = exampleProduct();
+        productDao.insert(product);
+        assertThat(product).hasNoNullFieldsOrProperties();
+        assertThat(productDao.retrieve(product.getId()))
+                .usingRecursiveComparison()
+                .isEqualTo(product);
     }
 
     @Test
@@ -41,21 +57,29 @@ public class ProductDaoTest {
     }
 
     @Test
-    void shouldRetrieveAllProductProperties() throws SQLException {
-        productDao.insert(exampleProduct());
-        productDao.insert(exampleProduct());
-        Product product = exampleProduct();
-        productDao.insert(product);
-        assertThat(product).hasNoNullFieldsOrPropertiesExcept("categoryId");
-        assertThat(productDao.retrieve(product.getId()))
-                .usingRecursiveComparison()
-                .isEqualTo(product);
+    void shouldQueryProductsByCategory() throws SQLException {
+        ProductCategory category = CategoryDaoTest.exampleCategory();
+        categoryDao.insert(category);
+        ProductCategory otherCategory = CategoryDaoTest.exampleCategory();
+        categoryDao.insert(otherCategory);
+
+        Product matchingProduct = exampleProduct();
+        matchingProduct.setCategoryId(category.getId());
+        productDao.insert(matchingProduct);
+        Product nonMatchingProduct = exampleProduct();
+        nonMatchingProduct.setCategoryId(otherCategory.getId());
+        productDao.insert(nonMatchingProduct);
+
+        assertThat(productDao.queryProductsByCategoryId(category.getId()))
+                .extracting(Product::getId)
+                .contains(matchingProduct.getId())
+                .doesNotContain(nonMatchingProduct.getId());
     }
 
     @Test
     void shouldReturnProductsAsOptions() throws SQLException {
         ProductOptionsController controller = new ProductOptionsController(productDao);
-        Product product = ProductDaoTest.exampleProduct();
+        Product product = exampleProduct();
         productDao.insert(product);
 
         assertThat(controller.getBody())
@@ -83,10 +107,11 @@ public class ProductDaoTest {
                 .isEqualTo("http://localhost:8080/index.html");
     }
 
-    public static Product exampleProduct() {
+    private Product exampleProduct() {
         Product product = new Product();
         product.setName(exampleProductName());
         product.setPrice(10.50 + random.nextInt(20));
+        product.setCategoryId(defaultCategory.getId());
         return product;
     }
 

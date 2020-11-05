@@ -89,7 +89,7 @@ public class HttpServer {
             if (requestPath.equals("/echo")) {
                 handleEchoRequest(clientSocket, requestTarget, questionPos);
             } else if (requestPath.equals("/api/products")) {
-                handleGetProducts(clientSocket);
+                handleGetProducts(clientSocket, requestTarget, questionPos);
             } else {
                 HttpController controller = controllers.get(requestPath);
                 if (controller != null) {
@@ -153,9 +153,15 @@ public class HttpServer {
         }
     }
 
-    private void handleGetProducts(Socket clientSocket) throws IOException, SQLException {
+    private void handleGetProducts(Socket clientSocket, String requestTarget, int questionPos) throws IOException, SQLException {
+        Integer categoryId = null;
+        if (questionPos != -1) {
+            categoryId = Integer.valueOf(new QueryString(requestTarget.substring(questionPos+1))
+                    .getParameter("categoryId"));
+        }
+        List<Product> products = categoryId == null ? productDao.list() : productDao.queryProductsByCategoryId(categoryId);
         String body = "<ul>";
-        for (Product product : productDao.list()) {
+        for (Product product : products) {
             body += "<li>" + product.getName() + " (kr " + product.getPrice() + ")</li>";
         }
         body += "</ul>";
