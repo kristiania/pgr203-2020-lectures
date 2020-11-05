@@ -64,6 +64,10 @@ public class ProductDao extends AbstractDao<Product> {
         }
     }
 
+    public List<Product> queryProductsByCategoryId(Integer categoryId) {
+        return null;
+    }
+
     @Override
     protected Product mapRow(ResultSet rs) throws SQLException {
         Product product = new Product();

@@ -41,6 +41,26 @@ public class ProductDaoTest {
     }
 
     @Test
+    void shouldQueryProductsByCategory() throws SQLException {
+        ProductCategory category = CategoryDaoTest.exampleCategory();
+        categoryDao.insert(category);
+        ProductCategory otherCategory = CategoryDaoTest.exampleCategory();
+        categoryDao.insert(otherCategory);
+
+        Product matchingProduct = exampleProduct();
+        matchingProduct.setCategoryId(category.getId());
+        productDao.insert(matchingProduct);
+        Product nonMatchingProduct = exampleProduct();
+        nonMatchingProduct.setCategoryId(otherCategory.getId());
+        productDao.insert(nonMatchingProduct);
+
+        assertThat(productDao.queryProductsByCategoryId(category.getId()))
+                .extracting(Product::getId)
+                .contains(matchingProduct.getId())
+                .doesNotContain(nonMatchingProduct.getId());
+    }
+
+    @Test
     void shouldRetrieveAllProductProperties() throws SQLException {
         productDao.insert(exampleProduct());
         productDao.insert(exampleProduct());

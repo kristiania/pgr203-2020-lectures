@@ -159,8 +159,9 @@ public class HttpServer {
             categoryId = Integer.valueOf(new QueryString(requestTarget.substring(questionPos+1))
                     .getParameter("categoryId"));
         }
+        List<Product> products = categoryId == null ? productDao.list() : productDao.queryProductsByCategoryId(categoryId);
         String body = "<ul>";
-        for (Product product : productDao.list()) {
+        for (Product product : products) {
             if (categoryId == null || categoryId.equals(product.getCategoryId())) {
                 body += "<li>" + product.getName() + " (kr " + product.getPrice() + ")</li>";
             }
