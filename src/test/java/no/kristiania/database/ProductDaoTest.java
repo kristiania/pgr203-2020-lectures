@@ -66,7 +66,7 @@ public class ProductDaoTest {
         productDao.insert(exampleProduct());
         Product product = exampleProduct();
         productDao.insert(product);
-        assertThat(product).hasNoNullFieldsOrPropertiesExcept("categoryId");
+        assertThat(product).hasNoNullFieldsOrProperties();
         assertThat(productDao.retrieve(product.getId()))
                 .usingRecursiveComparison()
                 .isEqualTo(product);

@@ -65,7 +65,18 @@ public class ProductDao extends AbstractDao<Product> {
     }
 
     public List<Product> queryProductsByCategoryId(Integer categoryId) throws SQLException {
-        return list();
+        try (Connection connection = dataSource.getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM products WHERE category_id = ?")) {
+                statement.setInt(1, categoryId);
+                try (ResultSet rs = statement.executeQuery()) {
+                    List<Product> products = new ArrayList<>();
+                    while (rs.next()) {
+                        products.add(mapRow(rs));
+                    }
+                    return products;
+                }
+            }
+        }
     }
 
     @Override
