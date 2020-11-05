@@ -1,6 +1,8 @@
 package no.kristiania.http;
 
 import no.kristiania.database.Product;
+import no.kristiania.database.ProductCategory;
+import no.kristiania.database.ProductCategoryDao;
 import no.kristiania.database.ProductDao;
 import org.flywaydb.core.Flyway;
 import org.h2.jdbcx.JdbcDataSource;
@@ -104,6 +106,33 @@ class HttpServerTest {
         productDao.insert(product);
         HttpClient client = new HttpClient("localhost", server.getPort(), "/api/products");
         assertThat(client.getResponseBody()).contains("<li>Coconuts (kr 20.0)</li>");
+    }
+
+    @Test
+    void shouldFilterProductsByCategory() throws SQLException, IOException {
+        ProductDao productDao = new ProductDao(dataSource);
+        Product coconuts = new Product();
+        coconuts.setName("Coconuts");
+        coconuts.setPrice(20);
+        productDao.insert(coconuts);
+
+        Product carlsberg = new Product();
+        carlsberg.setName("Carlsberg");
+        carlsberg.setPrice(20);
+        productDao.insert(carlsberg);
+
+        ProductCategoryDao categoryDao = new ProductCategoryDao(dataSource);
+        ProductCategory beers = new ProductCategory();
+        beers.setName("Beer");
+        categoryDao.insert(beers);
+
+        carlsberg.setCategoryId(beers.getId());
+        productDao.update(carlsberg);
+
+        HttpClient client = new HttpClient("localhost", server.getPort(), "/api/products?categoryId=" + beers.getId());
+        assertThat(client.getResponseBody())
+                .contains("<li>Carlsberg (kr 20.0)</li>")
+                .doesNotContain("<li>Coconuts (kr 20.0)</li>");
     }
 
     @Test
