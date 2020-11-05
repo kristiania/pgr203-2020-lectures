@@ -22,7 +22,7 @@
     fetch("/api/products" + location.search).then(response => response.text()).then(html => {
         document.getElementById("products").innerHTML = html;
     });
-    fetch("/api/categoryOptions").then(response => response.text()).then(html => {
+    fetch("/api/categoryOptions" + location.search).then(response => response.text()).then(html => {
         document.getElementById("categoryId").innerHTML = html;
     });
 </script>

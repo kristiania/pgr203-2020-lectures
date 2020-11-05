@@ -1,7 +1,6 @@
 package no.kristiania.database;
 
 import no.kristiania.http.ProductCategoryOptionsController;
-import no.kristiania.http.ProductOptionsController;
 import org.flywaydb.core.Flyway;
 import org.h2.jdbcx.JdbcDataSource;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,8 +54,18 @@ public class CategoryDaoTest {
         ProductCategory productCategory = exampleCategory();
         categoryDao.insert(productCategory);
 
-        assertThat(controller.getBody())
+        assertThat(controller.getBody(null))
                 .contains("<option value=" + productCategory.getId() + ">" + productCategory.getName() + "</option>");
+    }
+
+    @Test
+    void shouldSelectCurrentCategoriesInOptions() throws SQLException {
+        ProductCategoryOptionsController controller = new ProductCategoryOptionsController(categoryDao);
+        ProductCategory productCategory = exampleCategory();
+        categoryDao.insert(productCategory);
+
+        assertThat(controller.getBody(productCategory.getId()))
+                .contains("<option value=" + productCategory.getId() + " selected='selected'>" + productCategory.getName() + "</option>");
     }
 
     public static ProductCategory exampleCategory() {
