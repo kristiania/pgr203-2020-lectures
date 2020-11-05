@@ -64,8 +64,8 @@ public class ProductDao extends AbstractDao<Product> {
         }
     }
 
-    public List<Product> queryProductsByCategoryId(Integer categoryId) {
-        return null;
+    public List<Product> queryProductsByCategoryId(Integer categoryId) throws SQLException {
+        return list();
     }
 
     @Override
