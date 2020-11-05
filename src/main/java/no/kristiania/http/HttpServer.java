@@ -154,9 +154,16 @@ public class HttpServer {
     }
 
     private void handleGetProducts(Socket clientSocket, String requestTarget, int questionPos) throws IOException, SQLException {
+        Integer categoryId = null;
+        if (questionPos != -1) {
+            categoryId = Integer.valueOf(new QueryString(requestTarget.substring(questionPos+1))
+                    .getParameter("categoryId"));
+        }
         String body = "<ul>";
         for (Product product : productDao.list()) {
-            body += "<li>" + product.getName() + " (kr " + product.getPrice() + ")</li>";
+            if (categoryId == null || categoryId.equals(product.getCategoryId())) {
+                body += "<li>" + product.getName() + " (kr " + product.getPrice() + ")</li>";
+            }
         }
         body += "</ul>";
         String response = "HTTP/1.1 200 OK\r\n" +
