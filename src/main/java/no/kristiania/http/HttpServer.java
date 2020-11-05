@@ -162,9 +162,7 @@ public class HttpServer {
         List<Product> products = categoryId == null ? productDao.list() : productDao.queryProductsByCategoryId(categoryId);
         String body = "<ul>";
         for (Product product : products) {
-            if (categoryId == null || categoryId.equals(product.getCategoryId())) {
-                body += "<li>" + product.getName() + " (kr " + product.getPrice() + ")</li>";
-            }
+            body += "<li>" + product.getName() + " (kr " + product.getPrice() + ")</li>";
         }
         body += "</ul>";
         String response = "HTTP/1.1 200 OK\r\n" +
